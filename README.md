@@ -1,21 +1,85 @@
-# Azure Search #
+# Moodle Global Search - Azure Search Backend
 
-TODO Describe the plugin shortly here.
+This plugin allows Moodle to use Microsoft Azure Search as the search engine for Moodle's Global Search.
 
-TODO Provide more detailed description here.
+The following features are provided by this plugin:
 
-## License ##
+* File indexing
+* Respects Moodle Proxy settings
 
-Matt Porritt <mattp@catalyst-au.net>
+## Supported Moodle Versions
+This plugin currently supports Moodle:
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
+* 3.1
+* 3.2
+* 3.3
+* 3.4
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+## Azure Search Service setup
+TODO
 
-You should have received a copy of the GNU General Public License along with
-this program.  If not, see <http://www.gnu.org/licenses/>.
+## Moodle Plugin Installation
+Once you have setup an Azure Search service you can now install the Moodle plugin.
+
+To install the plugin in Moodle:
+
+1. Get the code and copy/ install it to: `<moodledir>/search/engine/azure`
+2. Run the upgrade: `sudo -u www-data php admin/cli/upgrade` **Note:** the user may be different to www-data on your system.
+
+## Moodle Plugin Setup
+Once you have setup an Azure Search service you can now configure the Moodle plugin.
+
+
+1. Log into Moodle as an administrator
+2. Set up the plugin in *Site administration > Plugins > Search > Manage global search* by selecting *azure* as the search engine.
+3. Configure the Azure Search plugin at: *Site administration > Plugins > Search > Azure*
+4. TODO .... 
+6. To create the index and populate Azure Searcg with your site's data, run this CLI script. `sudo -u www-data php search/cli/indexer.php --force`
+7. Enable Global search in *Site administration > Advanced features*
+
+## File Indexing Support
+This plugin uses [Apache Tika](https://tika.apache.org/) for file indexing support. Tika parses files, extracts the text, and return it via a REST API.
+
+### Tika Setup
+Seting up a Tika test service is straight forward. In most cases on a Linux environment, you can simply download the Java JAR then run the service.
+<pre><code>
+wget http://apache.mirror.amaze.com.au/tika/tika-server-1.16.jar
+java -jar tika-server-1.16.jar
+</code></pre>
+
+This will start Tika on the host. By default the Tika service is available on: `http://localhost:9998`
+
+### Enabling File indexing support in Moodle
+Once a Tika service is available the Azure Search plugin in Moodle needs to be configured for file indexing support.<br/>
+Assuming you have already followed the basic installation steps, to enable file indexing support:
+
+1. Configure the Azure Search plugin at: *Site administration > Plugins > Search > Azure*
+2. Select the *Enable file indexing* checkbox.
+3. Set *Tika hostname* and *Tika port* of your Tika service. If you followed the basic Tika setup instructions the defaults should not need changing.
+4. Click the *Save Changes* button.
+
+### What is Tika
+From the [Apache Tika](https://tika.apache.org/) website:
+<blockquote>
+The Apache Tika™ toolkit detects and extracts metadata and text from over a thousand different file types (such as PPT, XLS, and PDF). All of these file types can be parsed through a single interface, making Tika useful for search engine indexing, content analysis, translation, and much more. You can find the latest release on the download page. Please see the Getting Started page for more information on how to start using Tika.
+</blockquote>
+
+# Crafted by Catalyst IT
+
+This plugin was developed by Catalyst IT Australia:
+
+https://www.catalyst-au.net/
+
+![Catalyst IT](/pix/catalyst-logo.png?raw=true)
+
+
+# Contributing and Support
+
+Issues, and pull requests using github are welcome and encouraged! 
+
+https://github.com/catalyst/moodle-search_elastic/issues
+
+If you would like commercial support or would like to sponsor additional improvements
+to this plugin please contact us:
+
+https://www.catalyst-au.net/contact-us
