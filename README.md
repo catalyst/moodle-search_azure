@@ -15,8 +15,18 @@ This plugin currently supports Moodle:
 * 3.3
 * 3.4
 
-## Azure Search Service setup
-TODO
+## Azure Search Service Setup
+
+### Service Setup
+To setup an Azure Search Service (and optionally a Microsoft Auzre account), follow the intructions at:<br/>
+https://docs.microsoft.com/en-au/azure/search/search-create-service-portal
+
+### Get API Credentials
+Calls to the Azure Search service require the service URL and an access key on every request. A search service is created with both, so if you added Azure Search to your subscription, follow these steps to get the necessary information:
+
+1. In the Azure portal, open the search service page from the dashboard or find your service in the service list.
+2. Get the endpoint at *Overview > Essentials > Url*. An example endpoint might look like `https://my-service-name.search.windows.net`.
+3. Get the api-key in *Settings > Keys*. There are two admin keys for redundancy in case you want to roll over keys. Admin keys grant the write permissions on your service, necessary for creating and loading indexes. You can use either the primary or secondary key for write operations.
 
 ## Moodle Plugin Installation
 Once you have setup an Azure Search service you can now install the Moodle plugin.
