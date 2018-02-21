@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/catalyst/moodle-search_azure.svg?branch=master)](https://travis-ci.org/catalyst/moodle-search_azure)
+
 # Moodle Global Search - Azure Search Backend
 
 This plugin allows Moodle to use Microsoft Azure Search as the search engine for Moodle's Global Search.
