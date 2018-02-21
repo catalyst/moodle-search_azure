@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin administration pages are defined here.
+ * Azure Search search engine settings.
  *
  * @package     search_azure
  * @category    admin
@@ -25,7 +25,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($ADMIN->fulltree) {
-   // TODO: Define the plugin settings page.
-   // https://docs.moodle.org/dev/Admin_settings
+if ($hassiteconfig) {
+    $ADMIN->add('searchplugins', new admin_category('search_azure', get_string('pluginname', 'search_azure')));
+
+    $pluginsettings = new admin_externalpage('search_azure_settings',
+            get_string('adminsettings', 'search_azure'),
+            new moodle_url('/search/engine/azure/index.php'));
+
+    $enrichsettings = new admin_externalpage('search_azure_enrichsettings',
+            get_string('enrichsettings', 'search_azure'),
+            new moodle_url('/search/engine/azure/enrich.php'));
+
+    $ADMIN->add('search_azure', $pluginsettings);
+    $ADMIN->add('search_azure', $enrichsettings);
+
+    $settings = null;
 }

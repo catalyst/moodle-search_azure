@@ -26,3 +26,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Azure Search';
+$string['pluginname_help'] = 'Search backend for the Azure Search search engine';
+
+$string['adminsettings'] = 'Plugin settings';
+$string['apikey'] = 'API Key';
+$string['apikey_help'] = 'An Azure Search Admin API related to the service you want to use.';
+$string['apiversion'] = 'API version';
+$string['apiversion_help'] = 'The Azure Search Admin API version to use, (normally the this should alwasy be the default).';
+$string['enrichsettings'] = 'Data Enrichment settings';
+$string['index'] = 'Index';
+$string['index_help'] = 'Namespace index to store search data in backend';
+$string['pluginsettings'] = 'Plugin Settings';
+$string['searchurl'] = 'URL';
+$string['searchurl_help'] = 'The FQDN of the Azure Search engine endpoint';
