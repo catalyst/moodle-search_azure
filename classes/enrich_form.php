@@ -44,7 +44,6 @@ class enrich_form extends \moodleform {
         $config = get_config('search_azure');
         $mform = $this->_form;
 
-
         // File indexing settings.
         $mform->addElement('header', 'fileindexsettings', get_string('fileindexsettings', 'search_azure'));
 
