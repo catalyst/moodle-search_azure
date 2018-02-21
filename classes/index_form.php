@@ -48,7 +48,7 @@ class index_form extends \moodleform {
         $mform->addElement('header', 'azuresettings', get_string('azuresettings', 'search_azure'));
 
         $mform->addElement('text', 'searchurl',  get_string ('searchurl', 'search_azure'));
-        $mform->setType('hostname', PARAM_URL);
+        $mform->setType('searchurl', PARAM_URL);
         $mform->addHelpButton('searchurl', 'searchurl', 'search_azure');
         $mform->addRule('searchurl', get_string ('required'), 'required', '', 'client');
         if (isset($config->searchurl)) {
