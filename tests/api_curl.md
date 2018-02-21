@@ -59,7 +59,7 @@ curl -X POST \
 -d ' {
      "value": [
      {
-         "@search.action": "upload",
+         "@search.action": "mergeOrUpload",
          "id": "core_course-mycourse-4",
          "parentid": "core_course-mycourse-4",
          "title": "search test",
@@ -73,7 +73,7 @@ curl -X POST \
          "modified": 1499398979
        },
        {
-         "@search.action": "upload",
+         "@search.action": "mergeOrUpload",
          "id": "mod_resource-activity-10",
          "parentid": "mod_resource-activity-10",
          "title": "search test file",
@@ -95,7 +95,36 @@ curl -X POST \
 TODO
 
 ## Delete Index
-TODO
+The Delete Index operation removes an index and associated documents from your Azure Search service.
 
-## Delete by ID
-TODO
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X DELETE \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+"https://moodle.search.windows.net/indexes/{index}?api-version=2016-09-01"
+</code></pre>
+
+## Delete Document by ID
+Delete removes the specified document from the index. Note that any field you specify in a delete operation, other than the key field, will be ignored. If you want to remove an individual field from a document, use merge instead and simply set the field explicitly to null.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "value": [
+     {
+         "@search.action": "delete",
+         "id": "core_course-mycourse-4"
+       }
+      ]
+     }
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs/index?api-version=2016-09-01"
+</code></pre>
