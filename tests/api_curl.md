@@ -27,18 +27,24 @@ curl -X PUT \
 -d '{
      "name": "{index}",
      "fields": [
-       {"name": "id", "type": "Edm.String", "key":true, "searchable": false},
-       {"name": "parentid", "type": "Edm.String"},
-       {"name": "itemid", "type": "Edm.Int32"},
-       {"name": "title", "type": "Edm.String"},
-       {"name": "content", "type": "Edm.String"},
-       {"name": "contextid", "type": "Edm.Int32"},
-       {"name": "areaid", "type": "Edm.String"},
-       {"name": "type", "type": "Edm.Int32"},
-       {"name": "courseid", "type": "Edm.Int32"},
-       {"name": "owneruserid", "type": "Edm.Int32"},
-       {"name": "modified", "type": "Edm.DateTimeOffset"}
+       {"name": "id", "type": "Edm.String", "retrievable":true, "searchable": true, "key":true, "filterable": false},
+       {"name": "parentid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "itemid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "title", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "content", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+       {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
+       {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+       {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "modified", "type": "Edm.DateTimeOffset", "retrievable":true, "searchable": false, "filterable": true}
       ]
      }' \
 "https://moodle.search.windows.net/indexes/{index}?api-version=2016-09-01"
 </code></pre>
+
+## Load Documents
+TODO
