@@ -94,6 +94,12 @@ curl -X POST \
 ## Query - Basic
 TODO
 
+## Query - Filter
+TODO
+
+## Query - Date Range
+TODO
+
 ## Delete Index
 The Delete Index operation removes an index and associated documents from your Azure Search service.
 
