@@ -40,11 +40,62 @@ curl -X PUT \
        {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
        {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
-       {"name": "modified", "type": "Edm.DateTimeOffset", "retrievable":true, "searchable": false, "filterable": true}
+       {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true}
       ]
      }' \
 "https://moodle.search.windows.net/indexes/{index}?api-version=2016-09-01"
 </code></pre>
 
 ## Load Documents
+The following show how to load documents into the index. You can load multiple documents at once.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "value": [
+     {
+         "@search.action": "upload",
+         "id": "core_course-mycourse-4",
+         "parentid": "core_course-mycourse-4",
+         "title": "search test",
+         "content": "search course summary description description",
+         "description1": "test",
+         "contextid": 202,
+         "areaid": "core_course-mycourse",
+         "type": 1,
+         "courseid": 4,
+         "owneruserid": 0,
+         "modified": 1499398979
+       },
+       {
+         "@search.action": "upload",
+         "id": "mod_resource-activity-10",
+         "parentid": "mod_resource-activity-10",
+         "title": "search test file",
+         "content": "description search test file",
+         "contextid": 296,
+         "areaid": "mod_resource-activity",
+         "type": 1,
+         "courseid": 4,
+         "owneruserid": 0,
+         "modified": 1507008263
+       }
+      ]
+     }
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs/index?api-version=2016-09-01"
+</code></pre>
+
+## Query - Basic
+TODO
+
+## Delete Index
+TODO
+
+## Delete by ID
 TODO
