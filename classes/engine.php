@@ -108,13 +108,15 @@ class engine extends \core_search\engine {
      *
      * @return url|bool Returns url if succes or false on error.
      */
-    private function get_url() {
+    private function get_url($path='') {
         $returnval = false;
 
-        if (!empty($this->config->hostname) && !empty($this->config->port)) {
-            $url = rtrim($this->config->hostname, "/");
-            $port = $this->config->port;
-            return $url . ':'. $port;
+        if (!empty($this->config->searchurl) && !empty($this->config->apiversion) && !empty($this->config->index)) {
+            $url = rtrim($this->config->searchurl, "/");
+            $apiversion = $this->config->apiversion;
+            $index =  $this->config->index;
+
+            $returnval = $url . '/indexes/' . $index . $path . '?api-version=' . $apiversion;
         }
 
         return $returnval;

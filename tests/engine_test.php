@@ -65,7 +65,6 @@ class search_azure_engine_testcase extends advanced_testcase {
         $this->search->add_search_area($areaid, new core_mocksearch\search\mock_search_area());
 
         $this->setAdminUser();
-        $this->search->index(true);
     }
 
     public function tearDown() {
@@ -84,5 +83,45 @@ class search_azure_engine_testcase extends advanced_testcase {
         return array(
                 'file-indexing-off' => array(0)
         );
+    }
+
+    /**
+     * Test basic URL construction.
+     */
+    public function test_get_url() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.net', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $expected = 'https://moodle.search.windows.net/indexes/moodle?api-version=2016-09-01';
+
+        $method = new ReflectionMethod('\search_azure\engine', 'get_url');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine);
+
+        // Check the results.
+        $this->assertEquals($expected, $proxy);
+    }
+
+    /**
+     * Test path URL construction.
+     */
+    public function test_get_url_path() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.net', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $expected = 'https://moodle.search.windows.net/indexes/moodle/docs/index?api-version=2016-09-01';
+
+        $method = new ReflectionMethod('\search_azure\engine', 'get_url');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, '/docs/index');
+
+        // Check the results.
+        $this->assertEquals($expected, $proxy);
     }
 }
