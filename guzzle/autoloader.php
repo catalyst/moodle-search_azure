@@ -35,7 +35,7 @@ $mapping = array(
     'GuzzleHttp\RetryMiddleware' => __DIR__ . '/GuzzleHttp/RetryMiddleware.php',
     'GuzzleHttp\TransferStats' => __DIR__ . '/GuzzleHttp/TransferStats.php',
     'GuzzleHttp\UriTemplate' => __DIR__ . '/GuzzleHttp/UriTemplate.php',
-    'GuzzleHttp\functions' => __DIR__ . '/GuzzleHttp/functions.php',
+    'GuzzleHttp\functions' => __DIR__ . '/GuzzleHttp/functions_include.php',
     'GuzzleHttp\functions_include' => __DIR__ . '/GuzzleHttp/functions_include.php',
     'GuzzleHttp\Promise\AggregateException' => __DIR__ . '/GuzzleHttp/Promise/AggregateException.php',
     'GuzzleHttp\Promise\CancellationException' => __DIR__ . '/GuzzleHttp/Promise/CancellationException.php',
@@ -49,7 +49,7 @@ $mapping = array(
     'GuzzleHttp\Promise\RejectionException' => __DIR__ . '/GuzzleHttp/Promise/RejectionException.php',
     'GuzzleHttp\Promise\TaskQueue' => __DIR__ . '/GuzzleHttp/Promise/TaskQueue.php',
     'GuzzleHttp\Promise\TaskQueueInterface' => __DIR__ . '/GuzzleHttp/Promise/TaskQueueInterface.php',
-    'GuzzleHttp\Promise\functions' => __DIR__ . '/GuzzleHttp/Promise/functions.php',
+    'GuzzleHttp\Promise\functions' => __DIR__ . '/GuzzleHttp/Promise/functions_include.php',
     'GuzzleHttp\Promise\functions_include' => __DIR__ . '/GuzzleHttp/Promise/functions_include.php',
     'GuzzleHttp\Psr7\AppendStream' => __DIR__ . '/GuzzleHttp/Psr7/AppendStream.php',
     'GuzzleHttp\Psr7\BufferStream' => __DIR__ . '/GuzzleHttp/Psr7/BufferStream.php',
@@ -73,7 +73,7 @@ $mapping = array(
     'GuzzleHttp\Psr7\Uri' => __DIR__ . '/GuzzleHttp/Psr7/Uri.php',
     'GuzzleHttp\Psr7\UriNormalizer' => __DIR__ . '/GuzzleHttp/Psr7/UriNormalizer.php',
     'GuzzleHttp\Psr7\UriResolver' => __DIR__ . '/GuzzleHttp/Psr7/UriResolver.php',
-    'GuzzleHttp\Psr7\functions' => __DIR__ . '/GuzzleHttp/Psr7/functions.php',
+    'GuzzleHttp\Psr7\functions' => __DIR__ . '/GuzzleHttp/Psr7/functions_include.php',
     'GuzzleHttp\Psr7\functions_include' => __DIR__ . '/GuzzleHttp/Psr7/functions_include.php',
     'Psr\Http\Message\MessageInterface' => __DIR__ . '/Psr/Http/Message/MessageInterface.php',
     'Psr\Http\Message\RequestInterface' => __DIR__ . '/Psr/Http/Message/RequestInterface.php',
@@ -86,10 +86,10 @@ $mapping = array(
 
 spl_autoload_register(function ($class) use ($mapping) {
     if (isset($mapping[$class])) {
-        require $mapping[$class];
+        require_once $mapping[$class];
     }
 }, true);
 
-require __DIR__ . '/GuzzleHttp/functions.php';
-require __DIR__ . '/GuzzleHttp/Psr7/functions.php';
-require __DIR__ . '/GuzzleHttp/Promise/functions.php';
+require_once __DIR__ . '/GuzzleHttp/functions_include.php';
+require_once __DIR__ . '/GuzzleHttp/Psr7/functions_include.php';
+require_once __DIR__ . '/GuzzleHttp/Promise/functions_include.php';

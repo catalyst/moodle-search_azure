@@ -131,7 +131,7 @@ class engine extends \core_search\engine {
         $returnval = false;
         $response = 404;
         $url = $this->get_url();
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
 
         if (!empty($this->config->index) && $url) {
             $index = $url . '/'. $this->config->index;
@@ -153,7 +153,7 @@ class engine extends \core_search\engine {
      */
     private function get_es_version() {
         $url = $this->get_url();
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         $response = $client->get($url);
         $responsebody = json_decode($response->getBody());
 
@@ -196,7 +196,7 @@ class engine extends \core_search\engine {
      */
     private function create_index() {
         $url = $this->get_url();
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         if (!empty($this->config->index) && $url) {
             $indexurl = $url . '/'. $this->config->index;
             $mapping = $this->get_mapping();
@@ -220,7 +220,7 @@ class engine extends \core_search\engine {
     public function is_server_ready() {
         $url = $this->get_url();
         $returnval = true;
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
 
         try {
             $response = $client->get($url);
@@ -266,7 +266,7 @@ class engine extends \core_search\engine {
     private function get_indexed_files($document, $start = 0, $rows = 500) {
         $url = $this->get_url();
         $indexeurl = $url . '/'. $this->config->index. '/_search';
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         // TODO: move this to document class.
         $query = array('query' => array(
                 'bool' => array(
@@ -549,7 +549,7 @@ class engine extends \core_search\engine {
             return $numdocsignored;
         } else if ($this->payloadsize > 0) { // Make sure we have at least some data to send.
             $url = $this->get_url ();
-            $client = new \search_azure\esrequest ();
+            $client = new \search_azure\asrequest ();
             $docurl = $url . '/' . $this->config->index . '/_bulk';
             error_log($this->payload);
             $response = $client->post ( $docurl, $this->payload );
@@ -605,7 +605,7 @@ class engine extends \core_search\engine {
         $docurl = $url . '/'. $this->config->index . '/doc/' . $docdata['id'];
         $jsondoc = json_encode($docdata);
 
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         $response = $client->post($docurl, $jsondoc);
         $responsecode = $response->getStatusCode();
 
@@ -637,7 +637,7 @@ class engine extends \core_search\engine {
         $docs = array();
         $doccount = 0;
         $url = $this->get_url() . '/'.  $this->config->index . '/_search';
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
 
         $returnlimit = \core_search\manager::MAX_RESULTS;
 
@@ -691,7 +691,7 @@ class engine extends \core_search\engine {
     public function delete_by_id($id) {
         $url = $this->get_url();
         $deleteurl = $url . '/'. $this->config->index . '/doc/'. $id;
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
 
         $client->delete($deleteurl);
     }
@@ -705,7 +705,7 @@ class engine extends \core_search\engine {
     public function delete($areaid = false) {
         $url = $this->get_url();
         $indexeurl = $url . '/'. $this->config->index;
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         $returnval = false;
 
         if ($areaid === false) {
@@ -749,7 +749,7 @@ class engine extends \core_search\engine {
      */
     public function file_indexing_enabled() {
         $returnval = false;
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
         $url = '';
         // Check if we have a valid set of config.
         if (!empty($this->config->tikahostname) &&
@@ -783,7 +783,7 @@ class engine extends \core_search\engine {
      */
     public function optimize() {
         $url = $this->get_url() . '/' . $this->config->index . '/_forcemerge';
-        $client = new \search_azure\esrequest();
+        $client = new \search_azure\asrequest();
 
         $client->post($url, '');
     }
