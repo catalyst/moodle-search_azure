@@ -123,7 +123,7 @@ class engine extends \core_search\engine {
     }
 
     /**
-     * Check if index exists in azuressearch backend
+     * Check if index exists in Azure Search service.
      *
      * @return bool True on success False on failure
      */
@@ -147,37 +147,14 @@ class engine extends \core_search\engine {
     }
 
     /**
-     * Get the version of the attached Azure Search service.
-     *
-     * @return integer $version The version of Azure Search service.
-     */
-    private function get_es_version() {
-        $url = $this->get_url();
-        $client = new \search_azure\asrequest();
-        $response = $client->get($url);
-        $responsebody = json_decode($response->getBody());
-
-        $version = $responsebody->version->number;
-
-        return $version;
-    }
-
-    /**
      * Get the Azure Search mapping.
      *
-     * @param integer $version The version of Azure Search to get the mapping for.
      * @return array $mapping  The Azure Search mapping.
      */
-    public function get_mapping($version=false) {
+    public function get_mapping() {
         $requiredfields = \search_azure\document::get_required_fields_definition();
         $mapping = array('mappings' => array('doc' => array('properties' => $requiredfields)));
 
-        // We need to change some of the mappings if Azure Search version is less than 5.
-        if (!$version) {
-            $version = $this->get_es_version();
-        }
-
-        if ($version < 5) {
             $mapping['mappings']['doc']['properties']['id']['type'] = 'string';
             $mapping['mappings']['doc']['properties']['id']['index'] = 'not_analyzed';
             $mapping['mappings']['doc']['properties']['parentid']['type'] = 'string';
@@ -186,7 +163,6 @@ class engine extends \core_search\engine {
             $mapping['mappings']['doc']['properties']['content']['type'] = 'string';
             $mapping['mappings']['doc']['properties']['areaid']['type'] = 'string';
             $mapping['mappings']['doc']['properties']['areaid']['index'] = 'not_analyzed';
-        }
 
         return $mapping;
     }
