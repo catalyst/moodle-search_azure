@@ -46,6 +46,19 @@ curl -X PUT \
 "https://moodle.search.windows.net/indexes/{index}?api-version=2016-09-01"
 </code></pre>
 
+## Get Index
+The Get Index checks if an index exists in your Azure Search service.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X GET \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+"https://moodle.search.windows.net/indexes/{index}?api-version=2016-09-01"
+</code></pre>
+
 ## Load Documents
 The following show how to load documents into the index. You can load multiple documents at once.
 

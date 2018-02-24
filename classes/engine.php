@@ -127,15 +127,14 @@ class engine extends \core_search\engine {
      *
      * @return bool True on success False on failure
      */
-    private function check_index() {
+    private function check_index($stack=false) {
         $returnval = false;
         $response = 404;
         $url = $this->get_url();
-        $client = new \search_azure\asrequest();
+        $client = new \search_azure\asrequest($stack);
 
         if (!empty($this->config->index) && $url) {
-            $index = $url . '/'. $this->config->index;
-            $response = $client->get($index);
+            $response = $client->get($url);
             $responsecode = $response->getStatusCode();
 
         }

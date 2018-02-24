@@ -29,6 +29,10 @@ require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
 require_once($CFG->dirroot . '/search/tests/fixtures/mock_search_area.php');
 require_once($CFG->dirroot . '/search/engine/azure/tests/fixtures/testable_engine.php');
 
+use \GuzzleHttp\Handler\MockHandler;
+use \GuzzleHttp\HandlerStack;
+use \GuzzleHttp\Psr7\Response;
+
 /**
  * Azure Search engine.
  *
@@ -123,5 +127,61 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         // Check the results.
         $this->assertEquals($expected, $proxy);
+    }
+
+    /**
+     * Test check if index exists.
+     */
+    public function test_check_index() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'check_index');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $stack);
+
+        // Check the results.
+        $this->assertEquals(true, $proxy);
+    }
+
+    /**
+     * Test check if index doesn't exist.
+     */
+    public function test_check_index_false() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $mock = new MockHandler([
+            new Response(404, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'check_index');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $stack);
+
+        // Check the results.
+        $this->assertEquals(false, $proxy);
     }
 }

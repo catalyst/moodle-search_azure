@@ -126,7 +126,11 @@ class asrequest {
      * @return \GuzzleHttp\Psr7\Response
      */
     public function get($url) {
-        $psr7request = new \GuzzleHttp\Psr7\Request('GET', $url);
+        $headers = [
+            'content-type' => 'application/json',
+            'api-key' => $this->config->apikey
+        ];
+        $psr7request = new \GuzzleHttp\Psr7\Request('GET', $url, $headers);
         $proxy = $this->proxyconstruct();
 
         // Requests that receive a 4xx or 5xx response will throw a
@@ -152,7 +156,10 @@ class asrequest {
      * @return \GuzzleHttp\Psr7\Response
      */
     public function put($url, $params=null) {
-        $headers = ['content-type' => 'application/x-www-form-urlencoded'];
+        $headers = [
+            'content-type' => 'application/json',
+            'api-key' => $this->config->apikey
+        ];
         $psr7request = new \GuzzleHttp\Psr7\Request('PUT', $url, $headers, $params);
         $proxy = $this->proxyconstruct();
 
@@ -178,7 +185,10 @@ class asrequest {
      * @return \Psr\Http\Message\ResponseInterface|NULL
      */
     public function post($url, $params) {
-        $headers = ['content-type' => 'application/x-www-form-urlencoded'];
+        $headers = [
+            'content-type' => 'application/json',
+            'api-key' => $this->config->apikey
+        ];
         $psr7request = new \GuzzleHttp\Psr7\Request('POST', $url, $headers, $params);
         $proxy = $this->proxyconstruct();
 
@@ -239,7 +249,11 @@ class asrequest {
      * @return \Psr\Http\Message\ResponseInterface|NULL
      */
     public function delete($url) {
-        $psr7request = new \GuzzleHttp\Psr7\Request('DELETE', $url);
+        $headers = [
+            'content-type' => 'application/json',
+            'api-key' => $this->config->apikey
+        ];
+        $psr7request = new \GuzzleHttp\Psr7\Request('DELETE', $url, $headers);
         $proxy = $this->proxyconstruct();
 
         // Requests that receive a 4xx or 5xx response will throw a
