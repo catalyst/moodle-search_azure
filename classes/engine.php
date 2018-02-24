@@ -108,13 +108,16 @@ class engine extends \core_search\engine {
      *
      * @return url|bool Returns url if succes or false on error.
      */
-    private function get_url($path='') {
+    private function get_url($path='', $index='') {
         $returnval = false;
 
         if (!empty($this->config->searchurl) && !empty($this->config->apiversion) && !empty($this->config->index)) {
             $url = rtrim($this->config->searchurl, "/");
             $apiversion = $this->config->apiversion;
-            $index =  $this->config->index;
+
+            if ($index === '') {
+                $index =  $this->config->index;
+            }
 
             $returnval = $url . '/indexes/' . $index . $path . '?api-version=' . $apiversion;
         }
@@ -150,18 +153,9 @@ class engine extends \core_search\engine {
      *
      * @return array $mapping  The Azure Search mapping.
      */
-    public function get_mapping() {
+    private function get_mapping() {
         $requiredfields = \search_azure\document::get_required_fields_definition();
-        $mapping = array('mappings' => array('doc' => array('properties' => $requiredfields)));
-
-            $mapping['mappings']['doc']['properties']['id']['type'] = 'string';
-            $mapping['mappings']['doc']['properties']['id']['index'] = 'not_analyzed';
-            $mapping['mappings']['doc']['properties']['parentid']['type'] = 'string';
-            $mapping['mappings']['doc']['properties']['parentid']['index'] = 'not_analyzed';
-            $mapping['mappings']['doc']['properties']['title']['type'] = 'string';
-            $mapping['mappings']['doc']['properties']['content']['type'] = 'string';
-            $mapping['mappings']['doc']['properties']['areaid']['type'] = 'string';
-            $mapping['mappings']['doc']['properties']['areaid']['index'] = 'not_analyzed';
+        $mapping = array('name' => $this->config->index, 'fields' => $requiredfields);
 
         return $mapping;
     }
@@ -169,18 +163,17 @@ class engine extends \core_search\engine {
     /**
      * Create index with mapping in Azure Search backend
      */
-    private function create_index() {
+    private function create_index($stack=false) {
         $url = $this->get_url();
-        $client = new \search_azure\asrequest();
+        $client = new \search_azure\asrequest($stack);
         if (!empty($this->config->index) && $url) {
-            $indexurl = $url . '/'. $this->config->index;
             $mapping = $this->get_mapping();
-            $response = $client->put($indexurl, json_encode($mapping));
+            $response = $client->put($url, json_encode($mapping));
             $responsecode = $response->getStatusCode();
         } else {
             throw new \moodle_exception('noconfig', 'search_azure', '');
         }
-        if ($responsecode !== 200) {
+        if ($responsecode !== 201) {
             throw new \moodle_exception('indexfail', 'search_azure', '');
         }
 
@@ -192,21 +185,19 @@ class engine extends \core_search\engine {
      *
      * @return true|string Returns true if all good or an error string.
      */
-    public function is_server_ready() {
-        $url = $this->get_url();
+    public function is_server_ready($stack=false) {
+        $url = $this->get_url('', false);
         $returnval = true;
-        $client = new \search_azure\asrequest();
-
-        try {
-            $response = $client->get($url);
-            $responsebody = $response->getBody(true);
-        } catch (\GuzzleHttp\Exception\ConnectException $exception) {
-            $responsebody = false;
-        }
+        $client = new \search_azure\asrequest($stack);
 
         if (!$url) {
             $returnval = get_string('noconfig', 'search_azure');
-        } else if (!(bool)json_decode($responsebody)) {
+        } else {
+            $response = $client->get($url);
+            $responsecode = $response->getStatusCode();
+        }
+
+        if ($responsecode != 200) {
             $returnval = get_string('noserver', 'search_azure');
         }
 

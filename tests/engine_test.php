@@ -101,6 +101,7 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         $expected = 'https://moodle.search.windows.net/indexes/moodle?api-version=2016-09-01';
 
+        // Reflection magic as we are directly testing a private method.
         $method = new ReflectionMethod('\search_azure\engine', 'get_url');
         $method->setAccessible(true); // Allow accessing of private method.
         $proxy = $method->invoke(new \search_azure\engine);
@@ -121,6 +122,7 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         $expected = 'https://moodle.search.windows.net/indexes/moodle/docs/index?api-version=2016-09-01';
 
+        // Reflection magic as we are directly testing a private method.
         $method = new ReflectionMethod('\search_azure\engine', 'get_url');
         $method->setAccessible(true); // Allow accessing of private method.
         $proxy = $method->invoke(new \search_azure\engine, '/docs/index');
@@ -183,5 +185,128 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         // Check the results.
         $this->assertEquals(false, $proxy);
+    }
+
+    /**
+     * Test mapping construction.
+     */
+    public function test_get_mapping() {
+        $this->resetAfterTest();
+
+        set_config('index', 'moodle', 'search_azure');
+
+        $expected = '{
+            "name": "moodle",
+            "fields": [
+                {"name": "id", "type": "Edm.String", "retrievable":true, "searchable": true, "key":true, "filterable": false},
+                {"name": "parentid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "itemid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "title", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "content", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true}
+            ]
+        }';
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'get_mapping');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = json_encode($method->invoke(new \search_azure\engine));
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString($expected, $proxy);
+    }
+
+    /**
+     * Test Azure Search index creation.
+     */
+    public function test_create_index() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $mock = new MockHandler([
+            new Response(201, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'create_index');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $stack);
+
+        // Check the results.
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Test check if Azure search server is ready.
+     */
+    public function test_is_server_ready() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'is_server_ready');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $stack);
+
+        // Check the results.
+        $this->assertEquals(true, $proxy);
+    }
+
+    /**
+     * Test check if Azure search server is ready.
+     */
+    public function test_is_server_ready_false() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $mock = new MockHandler([
+            new Response(404, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'is_server_ready');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $stack);
+
+        $expected = 'Azure Search endpoint unreachable';
+
+        // Check the results.
+        $this->assertEquals($expected, $proxy);
     }
 }
