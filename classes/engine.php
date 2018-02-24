@@ -106,6 +106,8 @@ class engine extends \core_search\engine {
      * Generates the Azure Search server endpoint URL from
      * the config hostname and port.
      *
+     * @param string $path The path to append to the search domain url.
+     * @param string $index The name of the search index to use.
      * @return url|bool Returns url if succes or false on error.
      */
     private function get_url($path='', $index='') {
@@ -116,7 +118,7 @@ class engine extends \core_search\engine {
             $apiversion = $this->config->apiversion;
 
             if ($index === '') {
-                $index =  $this->config->index;
+                $index = $this->config->index;
             }
 
             $returnval = $url . '/indexes/' . $index . $path . '?api-version=' . $apiversion;
@@ -128,6 +130,7 @@ class engine extends \core_search\engine {
     /**
      * Check if index exists in Azure Search service.
      *
+     * @param object $stack The Guzzle client stack to use.
      * @return bool True on success False on failure
      */
     private function check_index($stack=false) {
@@ -162,6 +165,8 @@ class engine extends \core_search\engine {
 
     /**
      * Create index with mapping in Azure Search backend
+     *
+     * @param object $stack The Guzzle client stack to use.
      */
     private function create_index($stack=false) {
         $url = $this->get_url();
@@ -183,6 +188,7 @@ class engine extends \core_search\engine {
      * Is the Azure Search server endpoint configured in Moodle
      * and available.
      *
+     * @param object $stack The Guzzle client stack to use.
      * @return true|string Returns true if all good or an error string.
      */
     public function is_server_ready($stack=false) {
@@ -517,7 +523,6 @@ class engine extends \core_search\engine {
             $url = $this->get_url ();
             $client = new \search_azure\asrequest ();
             $docurl = $url . '/' . $this->config->index . '/_bulk';
-            error_log($this->payload);
             $response = $client->post ( $docurl, $this->payload );
             $responsebody = json_decode ($response->getBody () );
 
