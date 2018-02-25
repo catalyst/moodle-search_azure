@@ -32,6 +32,7 @@ require_once($CFG->dirroot . '/search/engine/azure/tests/fixtures/testable_engin
 use \GuzzleHttp\Handler\MockHandler;
 use \GuzzleHttp\HandlerStack;
 use \GuzzleHttp\Psr7\Response;
+use \GuzzleHttp\Middleware;
 
 /**
  * Azure Search engine.
@@ -203,15 +204,18 @@ class search_azure_engine_testcase extends advanced_testcase {
                 {"name": "itemid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "title", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "content", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-                {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-                {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-                {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
-                {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true}
+                {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "userid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "groupid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+                {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+                {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false}
+
             ]
         }';
 
@@ -308,5 +312,61 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         // Check the results.
         $this->assertEquals($expected, $proxy);
+    }
+
+    /**
+     * Test the add document method makes correctly formed request.
+     */
+    public function test_add_document() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $history = Middleware::history($container);
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'])
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        // Add the history middleware to the handler stack.
+        $stack->push($history);
+
+        // Construct the search object and add it to the engine.
+        $rec = new \stdClass();
+        $rec->content = "Test content to add to engine";
+        $area = new core_mocksearch\search\mock_search_area();
+        $record = $this->generator->create_record($rec);
+        $doc = $area->get_document($record);
+
+        $engine = new \search_azure\engine();
+        $result = $engine->add_document($doc, false, $stack);
+        $request = $container[0]['request'];
+
+        $expect = '{"areaid":"core_mocksearch-mock_search_area",
+                    "id":"core_mocksearch-mock_search_area-1",
+                    "itemid":1,
+                    "title":"A basic title",
+                    "content":"Test content to add to engine",
+                    "description1":"Description 2.",
+                    "contextid":"2",
+                    "courseid":"1",
+                    "userid":"2",
+                    "owneruserid":"0",
+                    "modified":"1519536013",
+                    "type":1,
+                    "parentid":"core_mocksearch-mock_search_area-1",
+                    "@search.action":"mergeOrUpload"
+                    }'
+
+        error_log(print_r($request->getBody()->getContents(),true));
+
+        // Check the results.
+        $this->assertEquals(true, $result);
+
     }
 }

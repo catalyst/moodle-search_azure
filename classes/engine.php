@@ -112,7 +112,6 @@ class engine extends \core_search\engine {
      */
     private function get_url($path='', $index='') {
         $returnval = false;
-
         if (!empty($this->config->searchurl) && !empty($this->config->apiversion) && !empty($this->config->index)) {
             $url = rtrim($this->config->searchurl, "/");
             $apiversion = $this->config->apiversion;
@@ -158,7 +157,11 @@ class engine extends \core_search\engine {
      */
     private function get_mapping() {
         $requiredfields = \search_azure\document::get_required_fields_definition();
-        $mapping = array('name' => $this->config->index, 'fields' => $requiredfields);
+        $optionalfields = \search_azure\document::get_optional_fields_definition();
+        $allfields = array_merge($requiredfields, $optionalfields);
+        $fieldvalues = array_values($allfields);
+
+        $mapping = array('name' => $this->config->index, 'fields' => $fieldvalues);
 
         return $mapping;
     }
@@ -514,7 +517,7 @@ class engine extends \core_search\engine {
             $this->count++;
         }
 
-        // Some azure search providers such as AWS have a limit on how big the
+        // Some search providers have a limit on how big the
         // HTTP payload can be. Therefore we limit it to a size in bytes.
         // If we don't have enough data to send yet return early.
         if ($this->payloadsize < $this->config->sendsize && !$sendnow) {
@@ -570,14 +573,13 @@ class engine extends \core_search\engine {
      * @param bool $fileindexing are we indexing files
      * @return bool
      */
-    public function add_document($document, $fileindexing = false) {
+    public function add_document($document, $fileindexing = false, $stack=false) {
         $docdata = $document->export_for_engine();
-        $url = $this->get_url();
-        $docurl = $url . '/'. $this->config->index . '/doc/' . $docdata['id'];
+        $url = $this->get_url('/docs/index');
         $jsondoc = json_encode($docdata);
 
-        $client = new \search_azure\asrequest();
-        $response = $client->post($docurl, $jsondoc);
+        $client = new \search_azure\asrequest($stack);
+        $response = $client->post($url, $jsondoc);
         $responsecode = $response->getStatusCode();
 
         if ($responsecode !== 201 && $responsecode !== 200) {
