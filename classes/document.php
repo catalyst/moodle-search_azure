@@ -47,7 +47,7 @@ class document extends \core_search\document {
      * @var array
      */
     protected static $requiredfields = array(
-        array(
+        'id' => array(
             'name' => 'id',
             'type' => 'Edm.String',
             'retrievable' => true,
@@ -55,106 +55,122 @@ class document extends \core_search\document {
             'key' => true,
             'filterable' => false
         ),
-        array(
+        'parentid' => array(
             'name' => 'parentid',
             'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => false
         ),
-
-        array(
+        'itemid' => array(
             'name' => 'itemid',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => false
         ),
-
-        array(
+        'title' => array(
             'name' => 'title',
             'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => true,
             'filterable' => false
         ),
-
-        array(
+        'content' => array(
             'name' => 'content',
             'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => true,
             'filterable' => false
         ),
-
-        array(
-            'name' => 'description1',
-            'type' => 'Edm.String',
-            'retrievable' => true,
-            'searchable' => true,
-            'filterable' => false
-        ),
-
-        array(
-            'name' => 'description2',
-            'type' => 'Edm.String',
-            'retrievable' => true,
-            'searchable' => true,
-            'filterable' => false
-        ),
-
-        array(
-            'name' => 'filetext',
-            'type' => 'Edm.String',
-            'retrievable' => true,
-            'searchable' => true,
-            'filterable' => false
-        ),
-        array(
+        'contextid' => array(
             'name' => 'contextid',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
         ),
-        array(
+        'areaid' => array(
             'name' => 'areaid',
             'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
         ),
-
-        array(
+        'type' => array(
             'name' => 'type',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => false
         ),
-
-        array(
+        'courseid' => array(
             'name' => 'courseid',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
         ),
-
-        array(
+        'owneruserid' => array(
             'name' => 'owneruserid',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => false
         ),
-
-        array(
+        'modified' => array(
             'name' => 'modified',
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
+        ),
+    );
+
+    /**
+     * All optional fields docs can contain.
+     *
+     * Although it matches solr fields format, this is just to define the field types. Search
+     * engine plugins are responsible of setting their appropriate field types and map these
+     * naming to whatever format they need.
+     *
+     * @var array
+     */
+    protected static $optionalfields = array(
+        'userid' => array(
+            'name' => 'userid',
+            'type' => 'Edm.Int32',
+            'retrievable' => true,
+            'searchable' => false,
+            'filterable' => false
+        ),
+        'groupid' =>array(
+            'name' => 'groupid',
+            'type' => 'Edm.Int32',
+            'retrievable' => true,
+            'searchable' => false,
+            'filterable' => false
+        ),
+        'description1' => array(
+            'name' => 'description1',
+            'type' => 'Edm.String',
+            'retrievable' => true,
+            'searchable' => true,
+            'filterable' => false
+        ),
+        'description2' => array(
+            'name' => 'description2',
+            'type' => 'Edm.String',
+            'retrievable' => true,
+            'searchable' => true,
+            'filterable' => false
+        ),
+        'filetext' => array(
+            'name' => 'filetext',
+            'type' => 'Edm.String',
+            'retrievable' => true,
+            'searchable' => true,
+            'filterable' => false
         ),
     );
 
@@ -248,6 +264,21 @@ class document extends \core_search\document {
     }
 
     /**
+     * Returns the document ready to submit to the search engine.
+     *
+     * @throws \coding_exception
+     * @return array
+     */
+    public function export_for_engine() {
+        $data = parent::export_for_engine();
+
+        $data['@search.action'] = 'mergeOrUpload';
+
+        return $data;
+    }
+
+
+    /**
      * Export the data for the given file in relation to this document.
      *
      * @param \stored_file $file The stored file we are talking about.
@@ -289,6 +320,15 @@ class document extends \core_search\document {
      */
     public static function get_required_fields_definition() {
         return static::$requiredfields;
+    }
+
+    /**
+     * Returns all optional fields definitions.
+     *
+     * @return array
+     */
+    public static function get_optional_fields_definition() {
+        return static::$optionalfields;
     }
 
     /**

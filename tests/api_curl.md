@@ -40,6 +40,8 @@ curl -X PUT \
        {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
        {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "userid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
+       {"name": "groupid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
        {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true}
       ]
      }' \
