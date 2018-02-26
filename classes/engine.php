@@ -496,6 +496,35 @@ class engine extends \core_search\engine {
         return array($numrecords, $numdocs, $numdocsignored, $lastindexeddoc, $partial);
     }
 
+    private function process_response($response) {
+        $responsebody = json_decode ($response->getBody () );
+        $numdocsignored = 0;
+        // Process response.
+        // If no errors were returned from bulk operation then numdocs = numrecords.
+        // If there are errors we need to iterate through he response and count how many.
+        if ($response->getStatusCode() == 413) {
+            // TODO: add handling to retry sending payload one record at a time.
+            debugging ( get_string ( 'addfail', 'search_azure' ) . ' Request Entity Too Large', DEBUG_DEVELOPER );
+            $numdocsignored = $this->count;
+
+        } else if ($response->getStatusCode() >= 300) {
+            debugging ( get_string ( 'addfail', 'search_azure' ) .
+                    ' Error Code: ' . $response->getStatusCode(), DEBUG_DEVELOPER );
+            $numdocsignored = $this->count;
+
+        } else if ($responsebody->errors) {
+            foreach ($responsebody->items as $item) {
+                if ($item->index->status >= 300) {
+                    debugging ( get_string ( 'addfail', 'search_azure' ) .
+                            ' Error Type: ' . $item->index->error->type .
+                            ' Error Reason: ' . $item->index->error->reason, DEBUG_DEVELOPER );
+                    $numdocsignored ++;
+                }
+            }
+        }
+
+    }
+
     /**
      * Add the payload object containing document information
      * in JSON format to the Azure Search index.
@@ -506,7 +535,6 @@ class engine extends \core_search\engine {
      * @return number Number of documents not indexed.
      */
     private function batch_add_documents($jsonpayload, $isdoc=false, $sendnow=false) {
-        $numdocsignored = 0;
         if (!$sendnow) {
             $this->payload .= $jsonpayload;
             $this->payloadsize += strlen($jsonpayload);
@@ -521,43 +549,20 @@ class engine extends \core_search\engine {
         // HTTP payload can be. Therefore we limit it to a size in bytes.
         // If we don't have enough data to send yet return early.
         if ($this->payloadsize < $this->config->sendsize && !$sendnow) {
-            return $numdocsignored;
+            return 0;
         } else if ($this->payloadsize > 0) { // Make sure we have at least some data to send.
             $url = $this->get_url ();
             $client = new \search_azure\asrequest ();
             $docurl = $url . '/' . $this->config->index . '/_bulk';
             $response = $client->post ( $docurl, $this->payload );
-            $responsebody = json_decode ($response->getBody () );
 
-            // Process response.
-            // If no errors were returned from bulk operation then numdocs = numrecords.
-            // If there are errors we need to iterate through he response and count how many.
-            if ($response->getStatusCode() == 413) {
-                // TODO: add handling to retry sending payload one record at a time.
-                debugging ( get_string ( 'addfail', 'search_azure' ) . ' Request Entity Too Large', DEBUG_DEVELOPER );
-                $numdocsignored = $this->count;
+            $numdocsignored = $this->process_response($response);
 
-            } else if ($response->getStatusCode() >= 300) {
-                debugging ( get_string ( 'addfail', 'search_azure' ) .
-                        ' Error Code: ' . $response->getStatusCode(), DEBUG_DEVELOPER );
-                $numdocsignored = $this->count;
-
-            } else if ($responsebody->errors) {
-                foreach ($responsebody->items as $item) {
-                    if ($item->index->status >= 300) {
-                        debugging ( get_string ( 'addfail', 'search_azure' ) .
-                                ' Error Type: ' . $item->index->error->type .
-                                ' Error Reason: ' . $item->index->error->reason, DEBUG_DEVELOPER );
-                        $numdocsignored ++;
-                    }
-                }
-            }
-
-            // Reser the counts.
+            // Reset the counts.
             $this->payload = false;
             $this->payloadsize = 0;
 
-            // Reset the parent doc ocunt after attempting to add.
+            // Reset the parent doc count after attempting to add.
             if ($isdoc) {
                 $this->count = 0;
             }
