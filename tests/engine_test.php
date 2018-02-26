@@ -339,6 +339,7 @@ class search_azure_engine_testcase extends advanced_testcase {
         // Construct the search object and add it to the engine.
         $rec = new \stdClass();
         $rec->content = "Test content to add to engine";
+        $rec->timemodified = '1519536013';
         $area = new core_mocksearch\search\mock_search_area();
         $record = $this->generator->create_record($rec);
         $doc = $area->get_document($record);
@@ -346,27 +347,27 @@ class search_azure_engine_testcase extends advanced_testcase {
         $engine = new \search_azure\engine();
         $result = $engine->add_document($doc, false, $stack);
         $request = $container[0]['request'];
+        $requestcontents = $request->getBody()->getContents();
 
-        $expect = '{"areaid":"core_mocksearch-mock_search_area",
-                    "id":"core_mocksearch-mock_search_area-1",
-                    "itemid":1,
-                    "title":"A basic title",
-                    "content":"Test content to add to engine",
-                    "description1":"Description 2.",
-                    "contextid":"2",
-                    "courseid":"1",
-                    "userid":"2",
-                    "owneruserid":"0",
-                    "modified":"1519536013",
-                    "type":1,
-                    "parentid":"core_mocksearch-mock_search_area-1",
-                    "@search.action":"mergeOrUpload"
-                    }'
-
-        error_log(print_r($request->getBody()->getContents(),true));
+        $expect = '{"value": [
+                        {"areaid":"core_mocksearch-mock_search_area",
+                        "id":"core_mocksearch-mock_search_area-1",
+                        "itemid":1,
+                        "title":"A basic title",
+                        "content":"Test content to add to engine",
+                        "description1":"Description 2.",
+                        "contextid":"2",
+                        "courseid":"1",
+                        "userid":"2",
+                        "owneruserid":"0",
+                        "modified":"1519536013",
+                        "type":1,
+                        "parentid":"core_mocksearch-mock_search_area-1",
+                        "@search.action":"mergeOrUpload"
+                        }]}';
 
         // Check the results.
-        $this->assertEquals(true, $result);
+        $this->assertJsonStringEqualsJsonString($expect, $requestcontents);
 
     }
 }

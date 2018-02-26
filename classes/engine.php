@@ -571,12 +571,14 @@ class engine extends \core_search\engine {
      *
      * @param document $document
      * @param bool $fileindexing are we indexing files
+     * @param object $stack The Guzzle client stack to use.
      * @return bool
      */
     public function add_document($document, $fileindexing = false, $stack=false) {
         $docdata = $document->export_for_engine();
+        $record = array('value' => array($docdata));
         $url = $this->get_url('/docs/index');
-        $jsondoc = json_encode($docdata);
+        $jsondoc = json_encode($record);
 
         $client = new \search_azure\asrequest($stack);
         $response = $client->post($url, $jsondoc);

@@ -144,7 +144,7 @@ class document extends \core_search\document {
             'searchable' => false,
             'filterable' => false
         ),
-        'groupid' =>array(
+        'groupid' => array(
             'name' => 'groupid',
             'type' => 'Edm.Int32',
             'retrievable' => true,
