@@ -237,4 +237,34 @@ class search_azure_document_testcase extends advanced_testcase {
         $result = $stub->extract_text($file, $esclient);
         $this->assertEquals($content, $result);
     }
+
+    /**
+     * Test binary text file extraction request
+     */
+    public function test_export_for_engine() {
+        global $CFG;
+        set_config('tikahostname', 'http://127.0.0.1', 'search_azure');
+        set_config('tikaport', 9998, 'search_azure');
+
+        // Construct the search object.
+        $rec = new \stdClass();
+        $rec->content = "azure";
+        $area = new core_mocksearch\search\mock_search_area();
+        $record = $this->generator->create_record($rec);
+        $info = unserialize($record->info);
+
+        $document = new \search_azure\document('1', 'core_mocksearch', 'mock_search_area');
+        $document->set('title', $info->title);
+        $document->set('content', $info->content);
+        $document->set('description1', $info->description1);
+        $document->set('description1', $info->description2);
+        $document->set('contextid', $info->contextid);
+        $document->set('courseid', $info->courseid);
+        $document->set('userid', $info->userid);
+        $document->set('owneruserid', $info->owneruserid);
+        $document->set('modified', $record->timemodified);
+
+        $result = $document->export_for_engine();
+        $this->assertEquals('mergeOrUpload', $result['@search.action']);
+    }
 }
