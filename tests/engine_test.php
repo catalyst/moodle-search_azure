@@ -370,4 +370,78 @@ class search_azure_engine_testcase extends advanced_testcase {
         $this->assertJsonStringEqualsJsonString($expect, $requestcontents);
 
     }
+
+    /**
+     * Test check if document payload is ready to send.
+     */
+    public function test_ready_to_send() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $engine = new \search_azure\engine();
+        $result = $engine->ready_to_send(false);
+
+        // Check the results.
+        $this->assertEquals(false, $result);
+    }
+
+    /**
+     * Test check if document payload is ready to send.
+     */
+    public function test_ready_to_send_sendnow() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $engine = new \search_azure\engine();
+        $result = $engine->ready_to_send(true);
+
+        // Check the results.
+        $this->assertEquals(true, $result);
+    }
+
+    /**
+     * Test check if document payload is ready to send.
+     */
+    public function test_ready_to_send_payloadsize() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $engine = new \search_azure\engine();
+        $engine->payloadsize = 16000000;
+        $result = $engine->ready_to_send(false);
+
+        // Check the results.
+        $this->assertEquals(true, $result);
+    }
+
+    /**
+     * Test check if document payload is ready to send.
+     */
+    public function test_ready_to_send_payloadcount() {
+        $this->resetAfterTest();
+
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $engine = new \search_azure\engine();
+        $engine->payloadcount = 1000;
+        $result = $engine->ready_to_send(false);
+
+        // Check the results.
+        $this->assertEquals(true, $result);
+    }
 }

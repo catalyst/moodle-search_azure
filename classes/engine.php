@@ -49,12 +49,17 @@ class engine extends \core_search\engine {
     /**
      * @var bool The payload to be sent to the Azure Search service.
      */
-    protected $payload = false;
+    protected $payload = array();
+
+    /**
+     * @var int The number of records in the payload to be sent to the Azure Search service.
+     */
+    public $payloadcount = 0;
 
     /**
      * @var int The current size of the payload object.
      */
-    protected $payloadsize = 0;
+    public $payloadsize = 0;
 
     /**
      * @var int Count of how many parent documents are in current payload.
@@ -62,14 +67,14 @@ class engine extends \core_search\engine {
     protected $count = 0;
 
     /**
-     * @var integer The maxium size of payload to send to Azure Search in bytes.
+     * @var integer The maximum size of payload to send to Azure Search in bytes.
      */
-    protected $sendsize = 16000000;
+    protected $sendsize = 15000000;
 
     /**
-     * @var integer The maxium number of documents to sent to Azure Search in bytes.
+     * @var integer The maximum number of documents to sent to Azure Search in bytes.
      */
-    protected $sendlimit = 1000;
+    protected $sendlimit = 990;
 
     /**
      *
@@ -474,15 +479,8 @@ class engine extends \core_search\engine {
 
             $lastindexeddoc = $document->get('modified');
             $docdata = $document->export_for_engine();
-
             $numrecords++;
-            $jsonpayload = $this->create_payload($docdata);
-
-            if ($jsonpayload) {
-                $numdocsignored += $this->batch_add_documents($jsonpayload, true);
-            } else {
-                $numdocsignored ++;
-            }
+            $numdocsignored += $this->batch_add_documents($docdata, true);
 
             if ($options['indexfiles']) {
                 $searcharea->attach_files($document);
@@ -496,33 +494,44 @@ class engine extends \core_search\engine {
         return array($numrecords, $numdocs, $numdocsignored, $lastindexeddoc, $partial);
     }
 
+    /**
+     * Process response.
+     * If no errors were returned from bulk operation then numdocs = numrecords.
+     * If there are errors no documents would have been added.
+     *
+     * @param unknown $response
+     */
     private function process_response($response) {
-        $responsebody = json_decode ($response->getBody () );
+        $responsebody = json_decode($response->getBody ());
         $numdocsignored = 0;
-        // Process response.
-        // If no errors were returned from bulk operation then numdocs = numrecords.
-        // If there are errors we need to iterate through he response and count how many.
+
         if ($response->getStatusCode() == 413) {
             // TODO: add handling to retry sending payload one record at a time.
-            debugging ( get_string ( 'addfail', 'search_azure' ) . ' Request Entity Too Large', DEBUG_DEVELOPER );
+            debugging (get_string ('addfail', 'search_azure') . ' Request Entity Too Large', DEBUG_DEVELOPER );
             $numdocsignored = $this->count;
-
-        } else if ($response->getStatusCode() >= 300) {
-            debugging ( get_string ( 'addfail', 'search_azure' ) .
+        } else if ($response->getStatusCode() != 200) {
+            debugging (get_string ('addfail', 'search_azure') .
                     ' Error Code: ' . $response->getStatusCode(), DEBUG_DEVELOPER );
             $numdocsignored = $this->count;
+        }
+    }
 
-        } else if ($responsebody->errors) {
-            foreach ($responsebody->items as $item) {
-                if ($item->index->status >= 300) {
-                    debugging ( get_string ( 'addfail', 'search_azure' ) .
-                            ' Error Type: ' . $item->index->error->type .
-                            ' Error Reason: ' . $item->index->error->reason, DEBUG_DEVELOPER );
-                    $numdocsignored ++;
-                }
-            }
+    /**
+     *  Azure Search has a limit on how big the HTTP payload can be.
+     *  Therefore we limit it to a size in bytes and a document count.
+     *
+     * @param bool $sendnow
+     * @return bool
+     */
+    public function ready_to_send($sendnow) {
+        $readytosend = false;
+        if ($sendnow) {
+            $readytosend = true;
+        } else if ($this->payloadsize >= $this->sendsize || $this->payloadcount >= $this->sendlimit) {
+            $readytosend = true;
         }
 
+        return $readytosend;
     }
 
     /**
@@ -534,10 +543,17 @@ class engine extends \core_search\engine {
      * @param bool $sendnow
      * @return number Number of documents not indexed.
      */
-    private function batch_add_documents($jsonpayload, $isdoc=false, $sendnow=false) {
-        if (!$sendnow) {
-            $this->payload .= $jsonpayload;
-            $this->payloadsize += strlen($jsonpayload);
+    private function batch_add_documents($docdata, $isdoc=false, $sendnow=false, $stack=false) {
+        $payloadsize = strlen(json_encode($docdata));
+
+        // Sometimes a document will fail json encoding due to its content.
+        // In this case we return early.
+        if ($payloadsize == 0) {
+            return 1;
+        } else {
+            $this->payload[] = $docdata;
+            $this->payloadsize += strlen(json_encode($docdata));
+            $this->payloadcount++;
         }
 
         // Track how many parent docs are in the request.
@@ -545,22 +561,21 @@ class engine extends \core_search\engine {
             $this->count++;
         }
 
-        // Some search providers have a limit on how big the
-        // HTTP payload can be. Therefore we limit it to a size in bytes.
-        // If we don't have enough data to send yet return early.
-        if ($this->payloadsize < $this->config->sendsize && !$sendnow) {
+        $readytosend = $this->ready_to_send($sendnow);
+
+        if (!$readytosend) { // If we don't have enough data to send return early.
             return 0;
         } else if ($this->payloadsize > 0) { // Make sure we have at least some data to send.
             $url = $this->get_url ();
-            $client = new \search_azure\asrequest ();
-            $docurl = $url . '/' . $this->config->index . '/_bulk';
-            $response = $client->post ( $docurl, $this->payload );
+            $client = new \search_azure\asrequest($stack);
+            $response = $client->post($url, $this->payload);
 
             $numdocsignored = $this->process_response($response);
 
             // Reset the counts.
             $this->payload = false;
             $this->payloadsize = 0;
+            $this->payloadcount = 0;
 
             // Reset the parent doc count after attempting to add.
             if ($isdoc) {
