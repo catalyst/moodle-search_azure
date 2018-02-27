@@ -225,13 +225,11 @@ class engine extends \core_search\engine {
      * @param bool $fullindex is this a full index of site.
      */
     public function index_starting($fullindex = false) {
-        if ($fullindex) {
-            // Check if index exists and create it if it doesn't.
-            $hasindex = $this->check_index();
-            if (!$hasindex) {
-                $this->create_index();
-            }
-        }
+        // Check if index exists and create it if it doesn't.
+       $hasindex = $this->check_index();
+       if (!$hasindex) {
+           $this->create_index();
+       }
     }
 
     /**
@@ -240,7 +238,7 @@ class engine extends \core_search\engine {
      * @param document $document
      * @param int      $start The row to start the results on. Zero indexed.
      * @param int      $rows The number of rows to fetch
-     * @return array   A two element array, the first is the total number of availble results, the second is an array
+     * @return array   A two element array, the first is the total number of available results, the second is an array
      *                 of documents for the current request.
      */
     private function get_indexed_files($document, $start = 0, $rows = 500) {
@@ -316,7 +314,7 @@ class engine extends \core_search\engine {
         $rows = 500; // Maximum rows to process at a time.
         $files = $document->get_files(); // Get the attached files.
         // We do this progressively, so we can handle lots of files cleanly.
-        list ( $numfound, $indexedfiles ) = $this->get_indexed_files ( $document, 0, $rows );
+        list ($numfound, $indexedfiles) = $this->get_indexed_files($document, 0, $rows);
         $count = 0;
         $idstodelete = array ();
 
@@ -502,7 +500,7 @@ class engine extends \core_search\engine {
      * @param unknown $response
      */
     private function process_response($response) {
-        $responsebody = json_decode($response->getBody ());
+        $responsebody = json_decode($response->getBody());
         $numdocsignored = 0;
 
         if ($response->getStatusCode() == 413) {
@@ -544,13 +542,14 @@ class engine extends \core_search\engine {
      * @return number Number of documents not indexed.
      */
     private function batch_add_documents($docdata, $isdoc=false, $sendnow=false, $stack=false) {
+        $numdocsignored = 0;
         $payloadsize = strlen(json_encode($docdata));
 
         // Sometimes a document will fail json encoding due to its content.
         // In this case we return early.
         if ($payloadsize == 0) {
             return 1;
-        } else {
+        } else if ($docdata !== false) {
             $this->payload[] = $docdata;
             $this->payloadsize += strlen(json_encode($docdata));
             $this->payloadcount++;
@@ -564,11 +563,12 @@ class engine extends \core_search\engine {
         $readytosend = $this->ready_to_send($sendnow);
 
         if (!$readytosend) { // If we don't have enough data to send return early.
-            return 0;
+            return $numdocsignored;
         } else if ($this->payloadsize > 0) { // Make sure we have at least some data to send.
-            $url = $this->get_url ();
+            $url = $this->get_url('/docs/index');
             $client = new \search_azure\asrequest($stack);
-            $response = $client->post($url, $this->payload);
+            $payload = array('value' => $this->payload);
+            $response = $client->post($url, json_encode($payload));
 
             $numdocsignored = $this->process_response($response);
 
@@ -699,7 +699,6 @@ class engine extends \core_search\engine {
      */
     public function delete($areaid = false) {
         $url = $this->get_url();
-        $indexeurl = $url . '/'. $this->config->index;
         $client = new \search_azure\asrequest();
         $returnval = false;
 
@@ -708,7 +707,7 @@ class engine extends \core_search\engine {
             // Response will return acknowledged True if deletion worked,
             // or a status of not found if index doesn't exist.
             // We'll treat both cases as good.
-            $response = json_decode($client->delete($indexeurl)->getBody());
+            $response = json_decode($client->delete($url)->getBody());
             if (isset($response->acknowledged) && ($response->acknowledged == true)) {
                 $this->create_index(); // Recreate the new index.
                 $returnval = true;

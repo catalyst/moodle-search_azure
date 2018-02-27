@@ -61,6 +61,32 @@ class search_azure_engine_testcase extends advanced_testcase {
         $this->resetAfterTest();
         set_config('enableglobalsearch', true);
 
+        // Allow setting of test server info via Env Var or define
+        // to cater for mulitiple test setups.
+        $searchurl = getenv('TEST_SEARCH_AZURE_URL');
+        $apikey = getenv('TEST_SEARCH_AZUREC_APIKEY');
+        $index = getenv('TEST_SEARCH_AZURE_INDEX');
+
+        if (!$searchurl && defined('TEST_SEARCH_ELASTIC_HOSTNAME')) {
+            $searchurl = TEST_SEARCH_ELASTIC_HOSTNAME;
+        }
+        if (!$apikey &&defined('TEST_SEARCH_ELASTIC_PORT')) {
+            $apikey = TEST_SEARCH_ELASTIC_PORT;
+        }
+        if (!$index && defined('TEST_SEARCH_ELASTIC_INDEX')) {
+            $index = TEST_SEARCH_ELASTIC_INDEX;
+        }
+
+        if (!$searchurl || !$apikey || !$index) {
+            $this->skiptest = true;
+        } else {
+            $this->skiptest = false;
+        }
+
+        set_config('searchurl', $searchurl, 'search_elastic');
+        set_config('apikey', $apikey, 'search_elastic');
+        set_config('index', $index, 'search_elastic');
+
         $this->generator = self::getDataGenerator()->get_plugin_generator('core_search');
         $this->generator->setup();
 
@@ -94,8 +120,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test basic URL construction.
      */
     public function test_get_url() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.net', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
         set_config('index', 'moodle', 'search_azure');
@@ -115,8 +139,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test path URL construction.
      */
     public function test_get_url_path() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.net', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
         set_config('index', 'moodle', 'search_azure');
@@ -136,8 +158,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if index exists.
      */
     public function test_check_index() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -164,8 +184,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if index doesn't exist.
      */
     public function test_check_index_false() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -192,8 +210,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test mapping construction.
      */
     public function test_get_mapping() {
-        $this->resetAfterTest();
-
         set_config('index', 'moodle', 'search_azure');
 
         $expected = '{
@@ -232,8 +248,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test Azure Search index creation.
      */
     public function test_create_index() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -260,8 +274,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if Azure search server is ready.
      */
     public function test_is_server_ready() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -288,8 +300,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if Azure search server is ready.
      */
     public function test_is_server_ready_false() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -318,8 +328,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test the add document method makes correctly formed request.
      */
     public function test_add_document() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -375,8 +383,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if document payload is ready to send.
      */
     public function test_ready_to_send() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -393,8 +399,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if document payload is ready to send.
      */
     public function test_ready_to_send_sendnow() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -411,8 +415,6 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test check if document payload is ready to send.
      */
     public function test_ready_to_send_payloadsize() {
-        $this->resetAfterTest();
-
         set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -443,5 +445,38 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         // Check the results.
         $this->assertEquals(true, $result);
+    }
+
+    /**
+     * Test check if document payload is ready to send.
+     */
+    public function test_basic_search() {
+        if ($this->skiptest){
+            $this->markTestSkipped('Azure Search service not set.');
+        }
+
+        // Construct the search object and add it to the engine.
+        $rec = new \stdClass();
+        $rec->content = "elastic";
+        $area = $this->area;
+        $record = $this->generator->create_record($rec);
+        $doc = $area->get_document($record);
+        $this->engine->add_document($doc);
+
+        // We need to wait for Elastic search to update its index
+        // this happens in near realtime, not immediately.
+        sleep(1);
+
+        // This is a mock of the search form submission.
+        $querydata = new stdClass();
+        $querydata->q = 'elastic';
+        $querydata->timestart = 0;
+        $querydata->timeend = 0;
+
+        // Execute the search.
+        $results = $this->search->search($querydata);
+
+        // Check the results.
+        $this->assertEquals($results[0]->get('content'), $querydata->q);
     }
 }

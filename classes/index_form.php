@@ -84,6 +84,8 @@ class index_form extends \moodleform {
         } else {
             $mform->setDefault('apiversion', '2016-09-01');
         }
+
+        $this->add_action_buttons();
     }
 
 }
