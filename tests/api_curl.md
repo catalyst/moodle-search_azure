@@ -131,6 +131,12 @@ The following show how construct a filtered Azure Search Query.
 Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
 Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
 
+The below query selects:
+* Any records (*)
+* That are in courses with a course id of 1, 2, 3 or 4
+* That are assignment or forum activity types
+* That have the word 'Forum' in the activity title
+
 <pre><code>
 curl -X POST \
 -H "Content-Type: application/json" \
@@ -146,7 +152,7 @@ curl -X POST \
 </code></pre>
 
 ## Query - Date Range
-The following show how construct basic Azure Search Queries.
+The following show how construct a filtered Azure Search Query that limits results based on a time range.
 
 Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
 Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
@@ -155,12 +161,13 @@ Replace the `{key}` variable in the example (including removing the braces) with
 curl -X POST \
 -H "Content-Type: application/json" \
 -H "api-key: {key}" \
--d '{
-
-   }
-
-' \
-"https://moodle.search.windows.net/indexes/{index}/docs?api-version=2016-09-01"
+-d ' {
+     "search": "*",
+     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "top": 100,
+     "filter": "(modified lt 1504505795 and modified ge 1504505792)"
+   }' \
+"https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
 </code></pre>
 
 ## Delete Index
