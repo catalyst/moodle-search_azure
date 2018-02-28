@@ -106,7 +106,7 @@ class document extends \core_search\document {
         ),
         'courseid' => array(
             'name' => 'courseid',
-            'type' => 'Edm.Int32',
+            'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
@@ -168,7 +168,7 @@ class document extends \core_search\document {
         'filetext' => array(
             'name' => 'filetext',
             'type' => 'Edm.String',
-            'retrievable' => true,
+            'retrievable' => false,
             'searchable' => true,
             'filterable' => false
         ),

@@ -34,11 +34,11 @@ curl -X PUT \
        {"name": "content", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
        {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
        {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-       {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
+       {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false},
        {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
-       {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+       {"name": "courseid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
        {"name": "userid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
        {"name": "groupid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
@@ -107,13 +107,61 @@ curl -X POST \
 </code></pre>
 
 ## Query - Basic
-TODO
+The following show how construct basic Azure Search Queries.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "search": "*",
+     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "top": 100
+   }
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
+</code></pre>
 
 ## Query - Filter
-TODO
+The following show how construct a filtered Azure Search Query.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "search": "*",
+     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "top": 100,
+     "filter": "search.in(courseid, '\''1,2,3,4'\'') and search.in(areaid, '\''mod_assign-activity, mod_forum-activity'\'') and search.ismatch('\''Forum'\'', '\''title'\'')"
+   }
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
+</code></pre>
 
 ## Query - Date Range
-TODO
+The following show how construct basic Azure Search Queries.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d '{
+
+   }
+
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs?api-version=2016-09-01"
+</code></pre>
 
 ## Delete Index
 The Delete Index operation removes an index and associated documents from your Azure Search service.

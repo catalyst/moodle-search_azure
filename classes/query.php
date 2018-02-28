@@ -79,7 +79,8 @@ class query  {
     private function get_search_fields() {
         $allfields = array_keys( \core_search\document::get_default_fields_definition());
         array_push($allfields, 'filetext');
-        $excludedfields = array('itemid',
+        $excludedfields = array(
+                'itemid',
                 'areaid',
                 'courseid',
                 'contextid',

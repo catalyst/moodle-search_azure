@@ -223,14 +223,14 @@ class search_azure_engine_testcase extends advanced_testcase {
                 {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
-                {"name": "courseid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "courseid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "owneruserid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "modified", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
                 {"name": "userid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "groupid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-                {"name": "filetext", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false}
+                {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false}
 
             ]
         }';
