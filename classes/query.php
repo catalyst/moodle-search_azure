@@ -56,7 +56,7 @@ class query  {
      *
      * @var string search fields
      */
-    private $searchfields = 'id, title, title, content, description1, description2, filetext';
+    private $searchfields = 'id, title, content, description1, description2, filetext';
 
     /**
      * construct basic query structure
@@ -97,12 +97,14 @@ class query  {
      */
     private function construct_title($title, $isand) {
         //and search.ismatch('\''Forum'\'', '\''title'\'')"
-        $titleobj = array('multi_match' => array('query' => $title,
-                                                 'fields' => array('title'),
-                                                 'type' => "phrase_prefix")
-        );
+        if ($isand) {
+            $filter = ' and';
+        } else {
+            $filter = '';
+        }
+        $filter .= " (search.ismatch('". $title ."', 'title'))";
 
-        return $titleobj;
+        return $filter;
     }
 
     /**
@@ -115,14 +117,16 @@ class query  {
      * @return array
      */
     private function construct_filter($filters, $key, $match, $isand) {
-        $arrayobj = array('terms' => array($match => array()));
-        $values = $filters->$key;
-
-        foreach ($values as $value) {
-            array_push ($arrayobj['terms'][$match], $value);
+        if ($isand) {
+            $filter = ' and';
+        } else {
+            $filter = '';
         }
+        // search.in(areaid, '\''mod_assign-activity, mod_forum-activity'\'')
+        $commaseparated = implode(",", $filters->$key);
+        $filter .= " (search.in(". $match .", '". $commaseparated ."'))";
 
-        return $arrayobj;
+        return $filter;
     }
 
     /**
@@ -132,17 +136,30 @@ class query  {
      * @param array $filters
      * @return array
      */
-    private function construct_time_range($filters) {
-        $contextobj = array('range' => array('modified' => array()));
+    private function construct_time_range($filters, $isand) {
+        $ge = false;
+
+        if ($isand) {
+            $filter = ' and (';
+        } else {
+            $filter = ' (';
+        }
 
         if (isset($filters->timestart) && $filters->timestart != 0) {
-            $contextobj['range']['modified']['gte'] = $filters->timestart;
+            $filter .= 'modified ge ' . $filters->timestart;
+            $ge = true;
+
         }
         if (isset($filters->timeend) && $filters->timeend != 0) {
-            $contextobj['range']['modified']['lte'] = $filters->timeend;
+            if ($ge){
+                $filter .= ' and ';
+            }
+            $filter .= 'modified lt ' . $filters->timeend;
         }
 
-        return $contextobj;
+        $filter .= ')';
+
+        return $filter;
     }
 
 
@@ -171,23 +188,22 @@ class query  {
         // Add filters.
         if (isset($filters->title) && $filters->title != null) {
             $title = $this->construct_title($filters->title, $isand);
-            $query['query']['bool']['must'][] = $title;
+            $query['filter'] = $query['filter'] . $title;
             $isand = true;
         }
         if (isset($filters->areaids) && $filters->areaids != null && !empty($filters->areaids)) {
             $areaids = $this->construct_filter($filters, 'areaids', 'areaid', $isand);
-            array_push ($query['query']['bool']['filter']['bool']['must'], $areaids);
+            $query['filter'] = $query['filter'] . $areaids;
             $isand = true;
         }
         if (isset($filters->courseids) && $filters->courseids != null && !empty($filters->courseids)) {
             $courseids = $this->construct_filter($filters, 'courseids', 'courseid', $isand);
-            array_push ($query['query']['bool']['filter']['bool']['must'], $courseids);
+            $query['filter'] = $query['filter'] . $courseids;
             $isand = true;
         }
         if ($filters->timestart != 0  || $filters->timeend != 0) {
             $timerange = $this->construct_time_range($filters, $isand);
-            array_push ($query['query']['bool']['filter']['bool']['must'], $timerange);
-            $isand = true;
+            $query['filter'] = $query['filter'] . $timerange;
         }
 
         return $query;

@@ -47,7 +47,7 @@ class search_azure_query_testcase extends advanced_testcase {
 
         $expected = '{
             "search": "*",
-            "searchFields": "id, title, title, content, description1, description2, filetext",
+            "searchFields": "id, title, content, description1, description2, filetext",
             "top": 100
             }';
 
@@ -72,7 +72,7 @@ class search_azure_query_testcase extends advanced_testcase {
 
         $expected = array(
             "search" => "*",
-            "searchFields" => "id, title, title, content, description1, description2, filetext",
+            "searchFields" => "id, title, content, description1, description2, filetext",
             "filter" => "(search.in(contextid, '1,2,3'))",
             "top"=> 100
         );
@@ -84,5 +84,122 @@ class search_azure_query_testcase extends advanced_testcase {
         $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
     }
 
+    /**
+     * Test title query construction.
+     */
+    public function test_get_query_title() {
 
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1,2,3);
+
+        $expected = array(
+                "search" => "*",
+                "searchFields" => "id, title, content, description1, description2, filetext",
+                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))",
+                "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test areaid query construction.
+     */
+    public function test_get_query_areaid() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1,2,3);
+
+        $expected = array(
+                "search" => "*",
+                "searchFields" => "id, title, content, description1, description2, filetext",
+                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+                            ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))",
+                "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test courseid query construction.
+     */
+    public function test_get_query_courseid() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->courseids = array(1,2,3,4);
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1,2,3);
+
+        $expected = array(
+                "search" => "*",
+                "searchFields" => "id, title, content, description1, description2, filetext",
+                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+                ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+                ." and (search.in(courseid, '1,2,3,4'))",
+                "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test times query construction.
+     */
+    public function test_get_query_times() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->courseids = array(1,2,3,4);
+        $filters->timestart = 1504505792;
+        $filters->timeend = 1504505795;
+
+        $contexts = array(1,2,3);
+
+        $expected = array(
+                "search" => "*",
+                "searchFields" => "id, title, content, description1, description2, filetext",
+                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+                ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+                ." and (search.in(courseid, '1,2,3,4'))"
+                ." and (modified ge 1504505792 and modified lt 1504505795)",
+                "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
 }

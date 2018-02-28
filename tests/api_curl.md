@@ -118,7 +118,7 @@ curl -X POST \
 -H "api-key: {key}" \
 -d ' {
      "search": "*",
-     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "searchFields": "id, title, content, description1, description2, filetext",
      "top": 100
    }
 ' \
@@ -143,7 +143,7 @@ curl -X POST \
 -H "api-key: {key}" \
 -d ' {
      "search": "*",
-     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "searchFields": "id, title, content, description1, description2, filetext",
      "top": 100,
      "filter": "search.in(courseid, '\''1,2,3,4'\'') and search.in(areaid, '\''mod_assign-activity, mod_forum-activity'\'') and search.ismatch('\''Forum'\'', '\''title'\'')"
    }
@@ -163,7 +163,7 @@ curl -X POST \
 -H "api-key: {key}" \
 -d ' {
      "search": "*",
-     "searchFields": "id, title, title, content, description1, description2, filetext",
+     "searchFields": "id, title, content, description1, description2, filetext",
      "top": 100,
      "filter": "(modified lt 1504505795 and modified ge 1504505792)"
    }' \
