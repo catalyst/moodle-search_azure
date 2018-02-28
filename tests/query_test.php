@@ -1,6 +1,4 @@
 <?php
-use search_azure;
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,5 +34,55 @@ global $CFG;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class search_azure_query_testcase extends advanced_testcase {
+
+    /**
+     * Test basic query construction.
+     */
+    public function test_get_query() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $expected = '{
+            "search": "*",
+            "searchFields": "id, title, title, content, description1, description2, filetext",
+            "top": 100
+            }';
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, true);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString($expected, json_encode($result));
+    }
+
+    /**
+     * Test context query construction.
+     */
+    public function test_get_query_context() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1,2,3);
+
+        $expected = array(
+            "search" => "*",
+            "searchFields" => "id, title, title, content, description1, description2, filetext",
+            "filter" => "(search.in(contextid, '1,2,3'))",
+            "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
 
 }
