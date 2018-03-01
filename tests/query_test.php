@@ -202,4 +202,33 @@ class search_azure_query_testcase extends advanced_testcase {
         // Check the results.
         $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
     }
+
+    /**
+     * Test times query construction.
+     */
+    public function test_get_files_query() {
+
+        $document = new \stdClass();
+        $document->id = 'mod_assign-activity-12"';
+        $document->areaid = array('mod_assign-activity');
+
+        $start = 0;
+        $rows = 500;
+
+        $expected = array(
+                "search" => "*",
+                "searchFields" => "id, title, content, description1, description2, filetext",
+                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+                ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+                ." and (search.in(courseid, '1,2,3,4'))"
+                ." and (modified ge 1504505792 and modified lt 1504505795)",
+                "top"=> 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_file_query($document, $start, $rows);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
 }

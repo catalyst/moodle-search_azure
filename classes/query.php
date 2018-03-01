@@ -162,8 +162,6 @@ class query  {
         return $filter;
     }
 
-
-
     /**
      * Construct the azuresearch query
      *
@@ -205,6 +203,26 @@ class query  {
             $timerange = $this->construct_time_range($filters, $isand);
             $query['filter'] = $query['filter'] . $timerange;
         }
+
+        return $query;
+    }
+
+    /**
+     * Construct the Azure Search query to get files
+     *
+     * @param array $filters
+     * @param array|int $usercontexts
+     * @return \search_azure\query
+     */
+    public function get_files_query($document, $start, $rows) {
+        $filterstring = "(search.ismatch('2', 'type'))"
+                        ." and (search.ismatch('". $document->get('areaid') ."', 'areaid'))"
+                        ." and (search.ismatch('". $document->get('id') ."', 'parentid'))";
+
+        $query = array();
+        $query['top'] = $rows;
+        $query['skip'] = $start;
+        $query['filter'] = $filterstring;
 
         return $query;
     }

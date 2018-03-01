@@ -172,6 +172,13 @@ class document extends \core_search\document {
             'searchable' => true,
             'filterable' => false
         ),
+            'filecontenthash' => array(
+                    'name' => 'filecontenthash',
+                    'type' => 'Edm.String',
+                    'retrievable' => true,
+                    'searchable' => false,
+                    'filterable' => true
+        )
     );
 
     /**

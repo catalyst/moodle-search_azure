@@ -241,28 +241,14 @@ class engine extends \core_search\engine {
      * @return array   A two element array, the first is the total number of available results, the second is an array
      *                 of documents for the current request.
      */
-    private function get_indexed_files($document, $start = 0, $rows = 500) {
-        $url = $this->get_url();
-        $indexeurl = $url . '/'. $this->config->index. '/_search';
-        $client = new \search_azure\asrequest();
-        // TODO: move this to document class.
-        $query = array('query' => array(
-                'bool' => array(
-                        'must' => array(
-                            array('match' => array('type' => 2)),
-                            array('match' => array('areaid' => $document->get('areaid'))),
-                            array('match' => array('parentid' => $document->get('id'))),
-                        )
-                )),
-                '_source' => array('id',
-                                  'modified',
-                                  'filecontenthash',
-                                  'title'),
-                'from' => $start,
-                'size' => $rows,
-                );
+    private function get_indexed_files($document, $start = 0, $rows = 500, $stack=false) {
+        $url = $this->get_url('/docs/search');
+        $client = new \search_azure\asrequest($stack);
+        $query = new \search_azure\query();
+        $queryobj = $query->get_file_query($document, $start, $rows);
+
         $jsonquery = json_encode($query);
-        $response = $client->post($indexeurl, $jsonquery)->getBody();
+        $response = $client->post($url, $jsonquery)->getBody();
         $results = json_decode($response);
 
         if (!isset($results->hits)) {

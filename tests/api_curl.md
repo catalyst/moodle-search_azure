@@ -35,6 +35,7 @@ curl -X PUT \
        {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
        {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
        {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false},
+       {"name": "filecontenthash", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "contextid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "areaid", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
        {"name": "type", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},

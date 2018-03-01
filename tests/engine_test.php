@@ -67,14 +67,14 @@ class search_azure_engine_testcase extends advanced_testcase {
         $apikey = getenv('TEST_SEARCH_AZUREC_APIKEY');
         $index = getenv('TEST_SEARCH_AZURE_INDEX');
 
-        if (!$searchurl && defined('TEST_SEARCH_ELASTIC_HOSTNAME')) {
-            $searchurl = TEST_SEARCH_ELASTIC_HOSTNAME;
+        if (!$searchurl && defined('TEST_SEARCH_AZURE_SEARCHURL')) {
+            $searchurl = TEST_SEARCH_AZURE_SEARCHURL;
         }
-        if (!$apikey &&defined('TEST_SEARCH_ELASTIC_PORT')) {
-            $apikey = TEST_SEARCH_ELASTIC_PORT;
+        if (!$apikey &&defined('TEST_SEARCH_AZURE_APIKEY')) {
+            $apikey = TEST_SEARCH_AZURE_APIKEY;
         }
-        if (!$index && defined('TEST_SEARCH_ELASTIC_INDEX')) {
-            $index = TEST_SEARCH_ELASTIC_INDEX;
+        if (!$index && defined('TEST_SEARCH_AZURE_INDEX')) {
+            $index = TEST_SEARCH_AZURE_INDEX;
         }
 
         if (!$searchurl || !$apikey || !$index) {
@@ -230,7 +230,8 @@ class search_azure_engine_testcase extends advanced_testcase {
                 {"name": "groupid", "type": "Edm.Int32", "retrievable":true, "searchable": false, "filterable": false},
                 {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
-                {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false}
+                {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false},
+                {"name": "filecontenthash", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true}
 
             ]
         }';
