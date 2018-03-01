@@ -41,7 +41,6 @@ To install the plugin in Moodle:
 ## Moodle Plugin Setup
 Once you have setup an Azure Search service you can now configure the Moodle plugin.
 
-
 1. Log into Moodle as an administrator
 2. Set up the plugin in *Site administration > Plugins > Search > Manage global search* by selecting *azure* as the search engine.
 3. Configure the Azure Search plugin at: *Site administration > Plugins > Search > Azure*
@@ -50,7 +49,12 @@ Once you have setup an Azure Search service you can now configure the Moodle plu
 7. Enable Global search in *Site administration > Advanced features*
 
 ## File Indexing Support
-This plugin uses [Apache Tika](https://tika.apache.org/) for file indexing support. Tika parses files, extracts the text, and return it via a REST API.
+This plugin provides optional file indexing support.
+
+This plugin uses [Apache Tika](https://tika.apache.org/) for file indexing support. This is a seperate service to this plugin and core Moodle.<br/>
+Tika parses files, extracts the text, and return it via a REST API.
+
+If you wish to use file indexing you will need access to a Tika service. An example setup can be found below.
 
 ### Tika Setup
 Seting up a Tika test service is straight forward. In most cases on a Linux environment, you can simply download the Java JAR then run the service.
