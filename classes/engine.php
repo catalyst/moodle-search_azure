@@ -226,10 +226,10 @@ class engine extends \core_search\engine {
      */
     public function index_starting($fullindex = false) {
         // Check if index exists and create it if it doesn't.
-       $hasindex = $this->check_index();
-       if (!$hasindex) {
-           $this->create_index();
-       }
+        $hasindex = $this->check_index();
+        if (!$hasindex) {
+            $this->create_index();
+        }
     }
 
     /**
