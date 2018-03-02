@@ -60,7 +60,7 @@ class document extends \core_search\document {
             'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => false,
-            'filterable' => false
+            'filterable' => true
         ),
         'itemid' => array(
             'name' => 'itemid',
@@ -85,7 +85,7 @@ class document extends \core_search\document {
         ),
         'contextid' => array(
             'name' => 'contextid',
-            'type' => 'Edm.Int32',
+            'type' => 'Edm.String',
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
@@ -102,7 +102,7 @@ class document extends \core_search\document {
             'type' => 'Edm.Int32',
             'retrievable' => true,
             'searchable' => false,
-            'filterable' => false
+            'filterable' => true
         ),
         'courseid' => array(
             'name' => 'courseid',
@@ -316,6 +316,7 @@ class document extends \core_search\document {
         $data['modified'] = $file->get_timemodified();
         $data['filetext'] = $filetext;
         $data['filecontenthash'] = $file->get_contenthash();
+        $data['@search.action'] = 'mergeOrUpload';
 
         return $data;
     }

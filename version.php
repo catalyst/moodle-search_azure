@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'search_azure';
-$plugin->release = '2018022800';
-$plugin->version = 2018022800;
+$plugin->release = '2018030201';
+$plugin->version = 2018030201;
 $plugin->requires = 2016052300;
 $plugin->maturity = MATURITY_ALPHA;

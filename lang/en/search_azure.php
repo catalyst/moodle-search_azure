@@ -46,6 +46,10 @@ $string['index_help'] = 'Namespace index to store search data in backend';
 $string['noconfig'] = 'Azure Search configuration missing';
 $string['noserver'] = 'Azure Search endpoint unreachable';
 $string['pluginsettings'] = 'Plugin Settings';
+$string['searchinfo'] = 'Search queries';
+$string['searchinfo_help'] = 'The field to be searched may be specified by prefixing the search query with \'title:\', \'content:\', \'name:\', or \'intro:\'. For example, searching for \'title:news\' would return results with the word \'news\' in the title.
+
+Boolean operators (\'AND\', \'OR\') may be used to combine or exclude keywords.';
 $string['searchurl'] = 'URL';
 $string['searchurl_help'] = 'The FQDN of the Azure Search engine endpoint';
 $string['tikahostname'] = 'Tika Hostname';

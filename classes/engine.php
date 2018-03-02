@@ -245,16 +245,17 @@ class engine extends \core_search\engine {
         $url = $this->get_url('/docs/search');
         $client = new \search_azure\asrequest($stack);
         $query = new \search_azure\query();
-        $queryobj = $query->get_file_query($document, $start, $rows);
+        $queryobj = $query->get_files_query($document, $start, $rows);
 
         $jsonquery = json_encode($query);
         $response = $client->post($url, $jsonquery)->getBody();
         $results = json_decode($response);
 
-        if (!isset($results->hits)) {
+        if (!isset($results->value)) {
             $returnarray = array(0, array());
         } else {
-            $returnarray = array($results->hits->total, $results->hits->hits);
+            $count = count($results->value);
+            $returnarray = array($count, $results->value);
         }
 
         return $returnarray;
@@ -307,18 +308,18 @@ class engine extends \core_search\engine {
         do {
             // Go through each indexed file. We want to not index any stored and unchanged ones, delete any missing ones.
             foreach ($indexedfiles as $indexedfile) {
-                $fileid = $indexedfile->_source->id;
+                $fileid = $indexedfile->id;
 
                 if (isset ( $files [$fileid] )) {
                     // Check for changes that would mean we need to re-index the file. If so, just leave in $files.
                     // Filelib does not guarantee time modified is updated, so we will check important values.
-                    if ($indexedfile->_source->modified != $files [$fileid]->get_timemodified ()) {
+                    if ($indexedfile->modified != $files [$fileid]->get_timemodified ()) {
                         continue;
                     }
-                    if (strcmp ( $indexedfile->_source->title, $files [$fileid]->get_filename () ) !== 0) {
+                    if (strcmp ( $indexedfile->title, $files [$fileid]->get_filename () ) !== 0) {
                         continue;
                     }
-                    if ($indexedfile->_source->filecontenthash != $files [$fileid]->get_contenthash ()) {
+                    if ($indexedfile->filecontenthash != $files [$fileid]->get_contenthash ()) {
                         continue;
                     }
                     // If the file is already indexed, we can just remove it from the files array and skip it.
@@ -326,7 +327,7 @@ class engine extends \core_search\engine {
                 } else {
                     // This means we have found a file that is no longer attached, so we need to delete from the index.
                     // We do it later, since this is progressive, and it could reorder results.
-                    $idstodelete [$indexedfile->_source->id] = $indexedfile->_type;
+                    $idstodelete [$indexedfile->id] = $indexedfile->type;
                 }
             }
             $count += $rows;
@@ -338,30 +339,6 @@ class engine extends \core_search\engine {
         } while ( $count < $numfound );
 
         return array($files, $idstodelete);
-    }
-
-    /**
-     * Given a document object, transform into formatted JSON ready to be
-     * sent to Azure Search.
-     *
-     * @param object $docdata Object containing document information to index.
-     * @return string The JSON representation of doc data, ready to be indexed.
-     */
-    private function create_payload($docdata) {
-
-        $meta = array('index' => array('_index' => $this->config->index,
-                                       '_type' => 'doc',
-                                       '_id' => $docdata['id']));
-        $jsonmeta = json_encode($meta);
-        $jsondoc = json_encode($docdata);
-        $jsonpayload = $jsonmeta . "\n" . $jsondoc. "\n";
-
-        // Return false if we can't JSON encode the document data.
-        if ($jsonmeta == false || $jsondoc == false) {
-            $jsonpayload = false;
-        }
-
-        return $jsonpayload;
     }
 
     /**
@@ -386,11 +363,8 @@ class engine extends \core_search\engine {
 
         foreach ($files as $fileid => $file) {
             $filedocdata = $document->export_file_for_engine($file);
+            $this->batch_add_documents($filedocdata);
 
-            $jsonpayload = $this->create_payload($filedocdata);
-            if ($jsonpayload) {
-                $this->batch_add_documents($jsonpayload);
-            }
         }
 
         $this->batch_add_documents(false, false, true);
@@ -603,6 +577,39 @@ class engine extends \core_search\engine {
 
     }
 
+    private function query_results($results, $limit) {
+        $docs = array();
+        $doccount = 0;
+
+        if (isset($results->value)) {
+            foreach ($results->value as $result) {
+                $searcharea = $this->get_search_area($result->areaid);
+                if (!$searcharea) {
+                    continue;
+                }
+                $access = $searcharea->check_access($result->itemid);
+
+                if ($access == \core_search\manager::ACCESS_DELETED) {
+                    $this->delete_by_id($result->id);
+                } else if ($access == \core_search\manager::ACCESS_GRANTED && $doccount < $limit) {
+
+                    // Add hightlighting to document.
+                 //   $highlightedresult = $this->highlight_result($result);
+
+                    $docs[] = $this->to_document($searcharea, (array)$result);
+                    $doccount++;
+                }
+                if ($access == \core_search\manager::ACCESS_GRANTED) {
+                    $this->totalresultdocs++;
+                }
+
+            }
+
+        }
+
+        return $docs;
+    }
+
     /**
      * Takes the user supplied query as well as data from Moodle global
      * search core to construct the search query and execute the query
@@ -615,9 +622,7 @@ class engine extends \core_search\engine {
      * @return array $docs
      */
     public function execute_query($filters, $usercontexts, $limit = 0) {
-        $docs = array();
-        $doccount = 0;
-        $url = $this->get_url() . '/'.  $this->config->index . '/_search';
+        $url = $this->get_url('/docs/search');
         $client = new \search_azure\asrequest();
 
         $returnlimit = \core_search\manager::MAX_RESULTS;
@@ -627,38 +632,14 @@ class engine extends \core_search\engine {
         }
 
         $query = new \search_azure\query();
-        $esquery = $query->get_query($filters, $usercontexts);
+        $asquery = $query->get_query($filters, $usercontexts);
 
         // Send a request to the server.
-        $results = json_decode($client->post($url, json_encode($esquery))->getBody());
+        $results = json_decode($client->post($url, json_encode($asquery))->getBody());
 
         // Iterate through results.
-        // TODO: refactor this into its own method.
-        if (isset($results->hits)) {
-            foreach ($results->hits->hits as $result) {
-                $searcharea = $this->get_search_area($result->_source->areaid);
-                if (!$searcharea) {
-                    continue;
-                }
-                $access = $searcharea->check_access($result->_source->itemid);
+        $docs = $this->query_results($results, $limit);
 
-                if ($access == \core_search\manager::ACCESS_DELETED) {
-                    $this->delete_by_id($result->_id);
-                } else if ($access == \core_search\manager::ACCESS_GRANTED && $doccount < $limit) {
-
-                    // Add hightlighting to document.
-                    $highlightedresult = $this->highlight_result($result);
-
-                    $docs[] = $this->to_document($searcharea, (array)$highlightedresult->_source);
-                    $doccount++;
-                }
-                if ($access == \core_search\manager::ACCESS_GRANTED) {
-                    $this->totalresultdocs++;
-                }
-
-            }
-
-        }
         // TODO: handle negative cases and errors.
         return $docs;
     }
@@ -735,8 +716,8 @@ class engine extends \core_search\engine {
         if (!empty($this->config->tikahostname) &&
             !empty($this->config->tikaport &&
             (bool)$this->config->fileindexing)) {
-                $port = $this->config->port;
-                $hostname = rtrim($this->config->hostname, "/");
+                $port = $this->config->tikaport;
+                $hostname = rtrim($this->config->tikahostname, "/");
                 $url = $hostname . ':'. $port;
         }
 

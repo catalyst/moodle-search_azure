@@ -263,9 +263,9 @@ class search_azure_query_testcase extends advanced_testcase {
         $doc = $area->get_document($record);
 
         $expected = array(
-                "filter" => "(search.ismatch('2', 'type'))"
-                ." and (search.ismatch('core_mocksearch-mock_search_area', 'areaid'))"
-                ." and (search.ismatch('core_mocksearch-mock_search_area-1', 'parentid'))",
+                "filter" => "(type eq 2))"
+                ." and (areaid eq 'core_mocksearch-mock_search_area')"
+                ." and (parentid eq 'core_mocksearch-mock_search_area-1)",
                 "top" => 500,
                 "skip" => 0
         );

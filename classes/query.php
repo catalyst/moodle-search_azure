@@ -82,7 +82,15 @@ class query  {
      * @return string
      */
     private function construct_contexts($usercontexts) {
-        $commaseparated = implode(",", $usercontexts);
+        $contexts = array();
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($usercontexts));
+
+        foreach ($iterator as $key => $value) {
+            array_push ($contexts, $value);
+        }
+
+        $contexts = array_values(array_unique ($contexts));
+        $commaseparated = implode(",", $contexts);
         $filter = "(search.in(contextid, '". $commaseparated ."'))";
 
         return $filter;
@@ -186,22 +194,38 @@ class query  {
         // Add filters.
         if (isset($filters->title) && $filters->title != null) {
             $title = $this->construct_title($filters->title, $isand);
-            $query['filter'] = $query['filter'] . $title;
+            if (isset($query['filter'])){
+                $query['filter'] = $query['filter'] . $title;
+            } else {
+                $query['filter'] = $title;
+            }
             $isand = true;
         }
         if (isset($filters->areaids) && $filters->areaids != null && !empty($filters->areaids)) {
             $areaids = $this->construct_filter($filters, 'areaids', 'areaid', $isand);
-            $query['filter'] = $query['filter'] . $areaids;
+            if (isset($query['filter'])){
+                $query['filter'] = $query['filter'] . $areaids;
+            } else {
+                $query['filter'] = $areaids;
+            }
             $isand = true;
         }
         if (isset($filters->courseids) && $filters->courseids != null && !empty($filters->courseids)) {
             $courseids = $this->construct_filter($filters, 'courseids', 'courseid', $isand);
-            $query['filter'] = $query['filter'] . $courseids;
+            if (isset($query['filter'])){
+                $query['filter'] = $query['filter'] . $courseids;
+            } else {
+                $query['filter'] = $courseids;
+            }
             $isand = true;
         }
         if ($filters->timestart != 0  || $filters->timeend != 0) {
             $timerange = $this->construct_time_range($filters, $isand);
-            $query['filter'] = $query['filter'] . $timerange;
+            if (isset($query['filter'])){
+                $query['filter'] = $query['filter'] . $timerange;
+            } else {
+                $query['filter'] = $timerange;
+            }
         }
 
         return $query;
@@ -215,9 +239,9 @@ class query  {
      * @return \search_azure\query
      */
     public function get_files_query($document, $start, $rows) {
-        $filterstring = "(search.ismatch('2', 'type'))"
-                        ." and (search.ismatch('". $document->get('areaid') ."', 'areaid'))"
-                        ." and (search.ismatch('". $document->get('id') ."', 'parentid'))";
+        $filterstring = "(type eq 2)"
+                        ." and (areaid eq '". $document->get('areaid') ."')"
+                        ." and (parentid eq '". $document->get('id') ."')";
 
         $query = array();
         $query['top'] = $rows;
