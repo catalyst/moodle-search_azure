@@ -25,6 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
+require_once($CFG->dirroot . '/search/tests/fixtures/mock_search_area.php');
+require_once($CFG->dirroot . '/search/engine/azure/tests/fixtures/testable_engine.php');
 
 /**
  * Azure Search engine.
@@ -34,6 +37,44 @@ global $CFG;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class search_azure_query_testcase extends advanced_testcase {
+    /**
+     * @var \core_search::manager
+     */
+    protected $search = null;
+
+    /**
+     * @var Instace of core_search_generator.
+     */
+    protected $generator = null;
+
+    /**
+     * @var Instace of testable_engine.
+     */
+    protected $engine = null;
+
+    public function setUp() {
+        $this->resetAfterTest();
+        set_config('enableglobalsearch', true);
+
+        $this->generator = self::getDataGenerator()->get_plugin_generator('core_search');
+        $this->generator->setup();
+
+        $this->engine = new \search_azure\testable_engine();
+        $this->search = testable_core_search::instance($this->engine);
+        $areaid = \core_search\manager::generate_areaid('core_mocksearch', 'mock_search_area');
+        $this->search->add_search_area($areaid, new core_mocksearch\search\mock_search_area());
+
+        $this->setAdminUser();
+    }
+
+    public function tearDown() {
+        // For unit tests before PHP 7, teardown is called even on skip. So only do our teardown if we did setup.
+        if ($this->generator) {
+            // Moodle DML freaks out if we don't teardown the temp table after each run.
+            $this->generator->teardown();
+            $this->generator = null;
+        }
+    }
 
     /**
      * Test basic query construction.
@@ -207,26 +248,30 @@ class search_azure_query_testcase extends advanced_testcase {
      * Test times query construction.
      */
     public function test_get_files_query() {
+        $this->resetAfterTest();
+        set_config('enableglobalsearch', true);
 
-        $document = new \stdClass();
-        $document->id = 'mod_assign-activity-12"';
-        $document->areaid = array('mod_assign-activity');
+        $rec = new \stdClass();
+        $rec->id = 'mod_assign-activity-12"';
+        $rec->areaid = array('mod_assign-activity');
 
         $start = 0;
         $rows = 500;
 
+        $area = new core_mocksearch\search\mock_search_area();
+        $record = $this->generator->create_record($rec);
+        $doc = $area->get_document($record);
+
         $expected = array(
-                "search" => "*",
-                "searchFields" => "id, title, content, description1, description2, filetext",
-                "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
-                ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
-                ." and (search.in(courseid, '1,2,3,4'))"
-                ." and (modified ge 1504505792 and modified lt 1504505795)",
-                "top"=> 100
+                "filter" => "(search.ismatch('2', 'type'))"
+                ." and (search.ismatch('core_mocksearch-mock_search_area', 'areaid'))"
+                ." and (search.ismatch('core_mocksearch-mock_search_area-1', 'parentid'))",
+                "top" => 500,
+                "skip" => 0
         );
 
         $query = new \search_azure\query();
-        $result = $query->get_file_query($document, $start, $rows);
+        $result = $query->get_files_query($doc, $start, $rows);
 
         // Check the results.
         $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
