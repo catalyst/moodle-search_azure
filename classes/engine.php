@@ -254,7 +254,7 @@ class engine extends \core_search\engine {
         if (!isset($results->value)) {
             $returnarray = array(0, array());
         } else {
-            $count = count($results->value);
+            $count = $results->{'@odata.count'}; // Insanity to access propert staring with @.
             $returnarray = array($count, $results->value);
         }
 

@@ -247,6 +247,26 @@ class query  {
         $query['top'] = $rows;
         $query['skip'] = $start;
         $query['filter'] = $filterstring;
+        $query['count'] = true;
+
+        return $query;
+    }
+
+    /**
+     * Construct the Azure Search query to get files
+     *
+     * @param int $areaid
+     * @param array|int $usercontexts
+     * @return \search_azure\query
+     */
+    public function get_areaid_query($areaid, $start, $rows) {
+        $filterstring = "areaid eq '". $areaid ."'";
+
+        $query = array();
+        $query['top'] = $rows;
+        $query['skip'] = $start;
+        $query['filter'] = $filterstring;
+        $query['count'] = true;
 
         return $query;
     }
