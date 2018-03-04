@@ -349,6 +349,7 @@ class search_azure_engine_testcase extends advanced_testcase {
         $rec = new \stdClass();
         $rec->content = "Test content to add to engine";
         $rec->timemodified = '1519536013';
+        $rec->contextid = '2';
         $area = new core_mocksearch\search\mock_search_area();
         $record = $this->generator->create_record($rec);
         $doc = $area->get_document($record);
