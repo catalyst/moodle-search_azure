@@ -47,7 +47,12 @@ class engine extends \core_search\engine {
     protected $totalresultdocs = 0;
 
     /**
-     * @var bool The payload to be sent to the Azure Search service.
+     * @var array Stores result from get records by area id method.
+     */
+    protected $areaiddocs = array();
+
+    /**
+     * @var array The payload to be sent to the Azure Search service.
      */
     protected $payload = array();
 
@@ -225,10 +230,12 @@ class engine extends \core_search\engine {
      * @param bool $fullindex is this a full index of site.
      */
     public function index_starting($fullindex = false) {
-        // Check if index exists and create it if it doesn't.
-        $hasindex = $this->check_index();
-        if (!$hasindex) {
-            $this->create_index();
+        if ($fullindex) {
+            // Check if index exists and create it if it doesn't.
+            $hasindex = $this->check_index();
+            if (!$hasindex) {
+                $this->create_index();
+            }
         }
     }
 
@@ -260,6 +267,41 @@ class engine extends \core_search\engine {
 
         return $returnarray;
 
+    }
+
+    /**
+     * Get the currently indexed files for a particular document, returns the total count, and a subset of files.
+     *
+     * @param document $document
+     * @param int      $start The row to start the results on. Zero indexed.
+     * @param int      $rows The number of rows to fetch
+     * @return array   A two element array, the first is the total number of available results, the second is an array
+     *                 of documents for the current request.
+     */
+    private function get_records_areaid($areaid, $start = 0, $rows = 500, $stack=false) {
+        $results = array();
+
+        $url = $this->get_url('/docs/search');
+        $client = new \search_azure\asrequest($stack);
+        $query = new \search_azure\query();
+        $queryobj = $query->get_areaid_query($areaid, $start, $rows);
+
+        $jsonquery = json_encode($query);
+        $response = $client->post($url, $jsonquery)->getBody();
+        $results = json_decode($response);
+
+        if (isset($results->value)) {
+            $count = $results->{'@odata.count'}; // Insanity to access propert staring with @.
+            $this->areaiddocs = array_merge($this->areaiddocs, $results->value);
+        }
+
+        if ($start < $count) {
+            $start += $rows;
+            $this->get_records_areaid($areaid, $start = 0);
+        }
+
+        $this->areaiddocs = array(); //reset to empty array.
+        return $results;
     }
 
     /**
@@ -648,14 +690,27 @@ class engine extends \core_search\engine {
      * Deletes the specified document.
      *
      * @param string $id The document id to delete
-     * @return void
+     * @return bool
      */
-    public function delete_by_id($id) {
-        $url = $this->get_url();
-        $deleteurl = $url . '/'. $this->config->index . '/doc/'. $id;
-        $client = new \search_azure\asrequest();
+    public function delete_by_id($id, $stack=false) {
+        $url = $this->get_url('/docs/index');
+        $client = new \search_azure\asrequest($stack);
 
-        $client->delete($deleteurl);
+        $record = array('value' => array(
+            '@search.action' => 'delete',
+            'id' => $id
+        ));
+        $jsondoc = json_encode($record);
+
+        $response = $client->post($url, $jsondoc);
+        $responsecode = $response->getStatusCode();
+
+        if ($responsecode !== 200) {
+            debugging(get_string('deletefail', 'search_azure') . $response->getBody(), DEBUG_DEVELOPER);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -664,7 +719,7 @@ class engine extends \core_search\engine {
      *
      * @param bool $areaid | string
      */
-    public function delete($areaid = false) {
+    public function delete($areaid=false, $stack=false) {
         $url = $this->get_url();
         $client = new \search_azure\asrequest();
         $returnval = false;
@@ -683,21 +738,11 @@ class engine extends \core_search\engine {
                 $returnval = true;
             }
         } else {
-            $url = $url . '/_search';
-            // TODO: move this to request class and check query construction.
-            $query = array('query' => array(
-                                'bool' => array(
-                                    'must' => array(
-                                        'match' => array('areaid' => $areaid)
-                                    )
-                                )
-                            ));
-            $results = json_decode($client->post($url, json_encode($query))->getBody());
-            if (isset($results->hits)) {
-                foreach ($results->hits->hits as $result) {
-                    $this->delete_by_id($result->_id);
-                }
+            $results = $this->get_records_areaid($areaid);
+            foreach ($results as $result) {
+                $this->delete_by_id($result->id);
             }
+            $returnval = true;
         }
         return $returnval;
     }

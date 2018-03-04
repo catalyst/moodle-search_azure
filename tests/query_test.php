@@ -263,9 +263,9 @@ class search_azure_query_testcase extends advanced_testcase {
         $doc = $area->get_document($record);
 
         $expected = array(
-                "filter" => "(type eq 2))"
+                "filter" => "(type eq 2)"
                 ." and (areaid eq 'core_mocksearch-mock_search_area')"
-                ." and (parentid eq 'core_mocksearch-mock_search_area-1)",
+                ." and (parentid eq 'core_mocksearch-mock_search_area-1')",
                 "top" => 500,
                 "skip" => 0,
                 "count" => true
@@ -282,19 +282,9 @@ class search_azure_query_testcase extends advanced_testcase {
      * Test get records by area id query construction.
      */
     public function test_get_areaid_query() {
-        $this->resetAfterTest();
-        set_config('enableglobalsearch', true);
-
-        $rec = new \stdClass();
-        $rec->id = 'mod_assign-activity-12"';
-        $rec->areaid = array('mod_assign-activity');
-
+        $areaid = 'core_mocksearch-mock_search_area';
         $start = 0;
         $rows = 500;
-
-        $area = new core_mocksearch\search\mock_search_area();
-        $record = $this->generator->create_record($rec);
-        $doc = $area->get_document($record);
 
         $expected = array(
             "filter" => "areaid eq 'core_mocksearch-mock_search_area'",
@@ -304,7 +294,7 @@ class search_azure_query_testcase extends advanced_testcase {
         );
 
         $query = new \search_azure\query();
-        $result = $query->get_files_query($doc, $start, $rows);
+        $result = $query->get_areaid_query($areaid, $start, $rows);
 
         // Check the results.
         $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));

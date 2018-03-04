@@ -35,6 +35,7 @@ $string['apikey_help'] = 'An Azure Search Admin API related to the service you w
 $string['apiversion'] = 'API version';
 $string['apiversion_help'] = 'The Azure Search Admin API version to use, (normally the this should alwasy be the default).';
 $string['azuresettings'] = 'Azure Search settings';
+$string['deletefail'] = 'Failed to delete document from index';
 $string['enrichsettings'] = 'Data Enrichment settings';
 $string['fileindexing'] = 'Enable file indexing';
 $string['fileindexing_help'] = 'Enables file indexing for this plugin. With this option checked you will need to enter details of the Tika service in the "File indexing settings" below.<br/>
