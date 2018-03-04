@@ -33,10 +33,19 @@ Calls to the Azure Search service require the service URL and an access key on e
 ## Moodle Plugin Installation
 Once you have setup an Azure Search service you can now install the Moodle plugin.
 
-To install the plugin in Moodle:
+### Command Line Installation
+To install the plugin in Moodle via the command line:
 
-1. Get the code and copy/ install it to: `<moodledir>/search/engine/azure`
-2. Run the upgrade: `sudo -u www-data php admin/cli/upgrade` **Note:** the user may be different to www-data on your system.
+1. Get the code from GitHub or the Moodle Plugin Directory.
+2. Copy or clone code into: `<moodledir>/search/engine/azure`
+3. Run the upgrade: `sudo -u www-data php admin/cli/upgrade` **Note:** the user may be different to www-data on your system.
+
+### User Interface Installation
+To install the plugin in Moodle via the Moodle User Interface:
+
+1. Log into your Moodle as an Administrator.
+2. Navigate to: *Site administration > Plugins > Install Plugins*
+3. Install plugin from Moodle Plugin directory or via zip upload.
 
 ## Moodle Plugin Setup
 Once you have setup an Azure Search service you can now configure the Moodle plugin.
@@ -44,7 +53,8 @@ Once you have setup an Azure Search service you can now configure the Moodle plu
 1. Log into Moodle as an administrator
 2. Set up the plugin in *Site administration > Plugins > Search > Manage global search* by selecting *azure* as the search engine.
 3. Configure the Azure Search plugin at: *Site administration > Plugins > Search > Azure*
-4. TODO ....
+4. Set *URL*, *API Key* and *API version* of your Elasticsearch server
+5. Set the *Index* name you want to use for your Azure Search service.
 6. To create the index and populate Azure Searcg with your site's data, run this CLI script. `sudo -u www-data php search/cli/indexer.php --force --reindex`
 7. Enable Global search in *Site administration > Advanced features*
 
