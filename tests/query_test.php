@@ -89,6 +89,9 @@ class search_azure_query_testcase extends advanced_testcase {
         $expected = '{
             "search": "*",
             "searchFields": "id, title, content, description1, description2, filetext",
+            "highlightPreTag":"@@HI_S@@",
+            "highlightPostTag":"@@HI_E@@",
+            "highlight":"title-10,content-10,description1-10,description2-10",
             "top": 100
             }';
 
@@ -115,6 +118,9 @@ class search_azure_query_testcase extends advanced_testcase {
             "search" => "*",
             "searchFields" => "id, title, content, description1, description2, filetext",
             "filter" => "(search.in(contextid, '1,2,3'))",
+            "highlightPreTag" => "@@HI_S@@",
+            "highlightPostTag" => "@@HI_E@@",
+            "highlight" => "title-10,content-10,description1-10,description2-10",
             "top" => 100
         );
 
@@ -142,6 +148,9 @@ class search_azure_query_testcase extends advanced_testcase {
                 "search" => "*",
                 "searchFields" => "id, title, content, description1, description2, filetext",
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))",
+                "highlightPreTag" => "@@HI_S@@",
+                "highlightPostTag" => "@@HI_E@@",
+                "highlight" => "title-10,content-10,description1-10,description2-10",
                 "top" => 100
         );
 
@@ -171,6 +180,9 @@ class search_azure_query_testcase extends advanced_testcase {
                 "searchFields" => "id, title, content, description1, description2, filetext",
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
                             ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))",
+                "highlightPreTag" => "@@HI_S@@",
+                "highlightPostTag" => "@@HI_E@@",
+                "highlight" => "title-10,content-10,description1-10,description2-10",
                 "top" => 100
         );
 
@@ -202,6 +214,9 @@ class search_azure_query_testcase extends advanced_testcase {
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
                 ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
                 ." and (search.in(courseid, '1,2,3,4'))",
+                "highlightPreTag" => "@@HI_S@@",
+                "highlightPostTag" => "@@HI_E@@",
+                "highlight" => "title-10,content-10,description1-10,description2-10",
                 "top" => 100
         );
 
@@ -234,6 +249,9 @@ class search_azure_query_testcase extends advanced_testcase {
                 ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
                 ." and (search.in(courseid, '1,2,3,4'))"
                 ." and (modified ge 1504505792 and modified lt 1504505795)",
+                "highlightPreTag" => "@@HI_S@@",
+                "highlightPostTag" => "@@HI_E@@",
+                "highlight" => "title-10,content-10,description1-10,description2-10",
                 "top" => 100
         );
 
