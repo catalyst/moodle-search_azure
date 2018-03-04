@@ -421,16 +421,12 @@ class engine extends \core_search\engine {
      */
     public function highlight_result($result) {
 
-        if (property_exists($result, 'highlight')) {
-
-            $query = new \search_azure\query();
-
-            foreach ($result->highlight as $highlightfield => $value) {
-                $result->_source->$highlightfield = $value[0]; // Replace _source element with highlight element.
+        if (property_exists($result, '@search.highlights')) {
+            foreach ($result->{'@search.highlights'} as $highlightfield => $value) {
+                $result->$highlightfield = $value[0]; // Replace _source element with highlight element.
 
             }
             $highlightedsource = $result;
-
         } else {
             $highlightedsource = $result;
         }
@@ -635,9 +631,9 @@ class engine extends \core_search\engine {
                 } else if ($access == \core_search\manager::ACCESS_GRANTED && $doccount < $limit) {
 
                     // Add hightlighting to document.
-                 //   $highlightedresult = $this->highlight_result($result);
+                    $highlightedresult = $this->highlight_result($result);
 
-                    $docs[] = $this->to_document($searcharea, (array)$result);
+                    $docs[] = $this->to_document($searcharea, (array)$highlightedresult);
                     $doccount++;
                 }
                 if ($access == \core_search\manager::ACCESS_GRANTED) {
