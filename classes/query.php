@@ -59,6 +59,21 @@ class query  {
     private $searchfields = 'id, title, content, description1, description2, filetext';
 
     /**
+     * Marker for the start of a highlight.
+     */
+    const HIGHLIGHT_START = '@@HI_S@@';
+
+    /**
+     * Marker for the end of a highlight.
+     */
+    const HIGHLIGHT_END = '@@HI_E@@';
+
+    /**
+     * @var array Fields that can be highlighted.
+     */
+    protected $highlightfields = array('title', 'content', 'description1', 'description2');
+
+    /**
      * construct basic query structure
      */
     public function __construct() {
@@ -171,6 +186,24 @@ class query  {
     }
 
     /**
+     * Add highlighting elements to query array.
+     *
+     * @param array $query query array.
+     * @return array $query updated query array with highlighting elements.
+     */
+    public function set_highlighting($query) {
+        $hightlighting = array(
+            'highlightPreTag' => self::HIGHLIGHT_START,
+            'highlightPostTag' => self::HIGHLIGHT_END,
+            'highlight' => implode($this->highlightfields, '-10,') . '-10'
+            );
+
+        $query = array_merge($query, $hightlighting);
+
+        return $query;
+    }
+
+    /**
      * Construct the azuresearch query
      *
      * @param array $filters
@@ -227,6 +260,9 @@ class query  {
                 $query['filter'] = $timerange;
             }
         }
+
+        // Add highlighting.
+        $query = $this->set_highlighting($query);
 
         return $query;
     }

@@ -108,7 +108,7 @@ curl -X POST \
 </code></pre>
 
 ## Query - Basic
-The following show how construct basic Azure Search Queries.
+The following shows how to construct basic Azure Search Queries.
 
 Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
 Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
@@ -127,7 +127,7 @@ curl -X POST \
 </code></pre>
 
 ## Query - Filter
-The following show how construct a filtered Azure Search Query.
+The following shows how to construct a filtered Azure Search Query.
 
 Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
 Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
@@ -153,7 +153,7 @@ curl -X POST \
 </code></pre>
 
 ## Query - Date Range
-The following show how construct a filtered Azure Search Query that limits results based on a time range.
+The following shows how to construct a filtered Azure Search Query that limits results based on a time range.
 
 Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
 Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
@@ -168,6 +168,28 @@ curl -X POST \
      "top": 100,
      "filter": "(modified lt 1504505795 and modified ge 1504505792)"
    }' \
+"https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
+</code></pre>
+
+## Query - Highlight
+The following shows how to construct a highlighted Azure Search Query.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "search": "test",
+     "searchFields": "id, title, content, description1, description2, filetext",
+     "top": 100,
+     "highlight": "title-10,content-10,description1-10,description2-10",
+     "highlightPreTag": "@@HI_S@@",
+     "highlightPostTag": "@@HI_E@@"
+   }
+' \
 "https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
 </code></pre>
 
