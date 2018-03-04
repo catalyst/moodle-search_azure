@@ -245,6 +245,7 @@ class engine extends \core_search\engine {
      * @param document $document
      * @param int      $start The row to start the results on. Zero indexed.
      * @param int      $rows The number of rows to fetch
+     * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
      * @return array   A two element array, the first is the total number of available results, the second is an array
      *                 of documents for the current request.
      */
@@ -272,9 +273,11 @@ class engine extends \core_search\engine {
     /**
      * Get the currently indexed files for a particular document, returns the total count, and a subset of files.
      *
-     * @param document $document
+     * @param int      $areaid The area id to get.
      * @param int      $start The row to start the results on. Zero indexed.
-     * @param int      $rows The number of rows to fetch
+     * @param int      $rows The number of rows to fetch.
+     * @param array    $returnresults the array of found results.
+     * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
      * @return array   A two element array, the first is the total number of available results, the second is an array
      *                 of documents for the current request.
      */
@@ -533,9 +536,10 @@ class engine extends \core_search\engine {
      * Add the payload object containing document information
      * in JSON format to the Azure Search index.
      *
-     * @param string $jsonpayload
+     * @param array $docdata
      * @param bool $isdoc
      * @param bool $sendnow
+     * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
      * @return number Number of documents not indexed.
      */
     private function batch_add_documents($docdata, $isdoc=false, $sendnow=false, $stack=false) {
@@ -614,6 +618,13 @@ class engine extends \core_search\engine {
 
     }
 
+    /**
+     * Filter the raw query search results.
+     *
+     * @param array $results The raw search results.
+     * @param int $limit The limit for the results to return.
+     * @return \core_search\document $docs The filtered documents.
+     */
     private function query_results($results, $limit) {
         $docs = array();
         $doccount = 0;
@@ -685,6 +696,7 @@ class engine extends \core_search\engine {
      * Deletes the specified document.
      *
      * @param string $id The document id to delete
+     * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
      * @return bool
      */
     public function delete_by_id($id, $stack=false) {
@@ -714,6 +726,8 @@ class engine extends \core_search\engine {
      * If an $areaid is not passed this will delete EVERYTHING!
      *
      * @param bool $areaid | string
+     * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
+     * @reutn bool $returnval The return status.
      */
     public function delete($areaid=false, $stack=false) {
         $url = $this->get_url();

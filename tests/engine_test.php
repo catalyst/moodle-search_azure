@@ -457,7 +457,7 @@ class search_azure_engine_testcase extends advanced_testcase {
         set_config('apiversion', '2016-09-01', 'search_azure');
         set_config('index', 'moodle', 'search_azure');
 
-        $areaid= 'mod_resource-activity';
+        $areaid = 'mod_resource-activity';
         $body1 = '{
             "@odata.count": 3,
             "value": [{
@@ -605,7 +605,7 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test basic search using real endpoint.
      */
     public function test_basic_search() {
-        if ($this->skiptest){
+        if ($this->skiptest) {
             $this->markTestSkipped('Azure Search service not set.');
         }
 

@@ -109,13 +109,13 @@ class search_azure_query_testcase extends advanced_testcase {
         $filters->timestart = 0;
         $filters->timeend = 0;
 
-        $contexts = array(1,2,3);
+        $contexts = array(1, 2, 3);
 
         $expected = array(
             "search" => "*",
             "searchFields" => "id, title, content, description1, description2, filetext",
             "filter" => "(search.in(contextid, '1,2,3'))",
-            "top"=> 100
+            "top" => 100
         );
 
         $query = new \search_azure\query();
@@ -136,13 +136,13 @@ class search_azure_query_testcase extends advanced_testcase {
         $filters->timestart = 0;
         $filters->timeend = 0;
 
-        $contexts = array(1,2,3);
+        $contexts = array(1, 2, 3);
 
         $expected = array(
                 "search" => "*",
                 "searchFields" => "id, title, content, description1, description2, filetext",
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))",
-                "top"=> 100
+                "top" => 100
         );
 
         $query = new \search_azure\query();
@@ -164,14 +164,14 @@ class search_azure_query_testcase extends advanced_testcase {
         $filters->timestart = 0;
         $filters->timeend = 0;
 
-        $contexts = array(1,2,3);
+        $contexts = array(1, 2, 3);
 
         $expected = array(
                 "search" => "*",
                 "searchFields" => "id, title, content, description1, description2, filetext",
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
                             ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))",
-                "top"=> 100
+                "top" => 100
         );
 
         $query = new \search_azure\query();
@@ -190,11 +190,11 @@ class search_azure_query_testcase extends advanced_testcase {
         $filters->q = '*';
         $filters->title = 'forum';
         $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
-        $filters->courseids = array(1,2,3,4);
+        $filters->courseids = array(1, 2, 3, 4);
         $filters->timestart = 0;
         $filters->timeend = 0;
 
-        $contexts = array(1,2,3);
+        $contexts = array(1, 2, 3);
 
         $expected = array(
                 "search" => "*",
@@ -202,7 +202,7 @@ class search_azure_query_testcase extends advanced_testcase {
                 "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
                 ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
                 ." and (search.in(courseid, '1,2,3,4'))",
-                "top"=> 100
+                "top" => 100
         );
 
         $query = new \search_azure\query();
@@ -221,11 +221,11 @@ class search_azure_query_testcase extends advanced_testcase {
         $filters->q = '*';
         $filters->title = 'forum';
         $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
-        $filters->courseids = array(1,2,3,4);
+        $filters->courseids = array(1, 2, 3, 4);
         $filters->timestart = 1504505792;
         $filters->timeend = 1504505795;
 
-        $contexts = array(1,2,3);
+        $contexts = array(1, 2, 3);
 
         $expected = array(
                 "search" => "*",
@@ -234,7 +234,7 @@ class search_azure_query_testcase extends advanced_testcase {
                 ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
                 ." and (search.in(courseid, '1,2,3,4'))"
                 ." and (modified ge 1504505792 and modified lt 1504505795)",
-                "top"=> 100
+                "top" => 100
         );
 
         $query = new \search_azure\query();

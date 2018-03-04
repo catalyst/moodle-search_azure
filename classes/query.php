@@ -116,10 +116,10 @@ class query  {
      * constructs a single match component for the search query.
      *
      * @param string $title
+     * @param bool $isand If true add and condition to string.
      * @return array
      */
     private function construct_title($title, $isand) {
-        //and search.ismatch('\''Forum'\'', '\''title'\'')"
         if ($isand) {
             $filter = ' and';
         } else {
@@ -134,9 +134,10 @@ class query  {
      * Takes the form submission filter data and given a key value
      * constructs an array of match components for the search query.
      *
-     * @param array $filters
+     * @param array $filters The filters to apply
      * @param string $key
      * @param string $match
+     * @param bool $isand If true add and condition to string.
      * @return array
      */
     private function construct_filter($filters, $key, $match, $isand) {
@@ -145,7 +146,7 @@ class query  {
         } else {
             $filter = '';
         }
-        // search.in(areaid, '\''mod_assign-activity, mod_forum-activity'\'')
+
         $commaseparated = implode(",", $filters->$key);
         $filter .= " (search.in(". $match .", '". $commaseparated ."'))";
 
@@ -156,7 +157,8 @@ class query  {
      * Takes the form submission filter data and
      * constructs the time range components for the search query.
      *
-     * @param array $filters
+     * @param array $filters The filters to apply
+     * @param bool $isand If true add and condition to string.
      * @return array
      */
     private function construct_time_range($filters, $isand) {
@@ -174,7 +176,7 @@ class query  {
 
         }
         if (isset($filters->timeend) && $filters->timeend != 0) {
-            if ($ge){
+            if ($ge) {
                 $filter .= ' and ';
             }
             $filter .= 'modified lt ' . $filters->timeend;
@@ -227,7 +229,7 @@ class query  {
         // Add filters.
         if (isset($filters->title) && $filters->title != null) {
             $title = $this->construct_title($filters->title, $isand);
-            if (isset($query['filter'])){
+            if (isset($query['filter'])) {
                 $query['filter'] = $query['filter'] . $title;
             } else {
                 $query['filter'] = $title;
@@ -236,7 +238,7 @@ class query  {
         }
         if (isset($filters->areaids) && $filters->areaids != null && !empty($filters->areaids)) {
             $areaids = $this->construct_filter($filters, 'areaids', 'areaid', $isand);
-            if (isset($query['filter'])){
+            if (isset($query['filter'])) {
                 $query['filter'] = $query['filter'] . $areaids;
             } else {
                 $query['filter'] = $areaids;
@@ -245,7 +247,7 @@ class query  {
         }
         if (isset($filters->courseids) && $filters->courseids != null && !empty($filters->courseids)) {
             $courseids = $this->construct_filter($filters, 'courseids', 'courseid', $isand);
-            if (isset($query['filter'])){
+            if (isset($query['filter'])) {
                 $query['filter'] = $query['filter'] . $courseids;
             } else {
                 $query['filter'] = $courseids;
@@ -254,7 +256,7 @@ class query  {
         }
         if ($filters->timestart != 0  || $filters->timeend != 0) {
             $timerange = $this->construct_time_range($filters, $isand);
-            if (isset($query['filter'])){
+            if (isset($query['filter'])) {
                 $query['filter'] = $query['filter'] . $timerange;
             } else {
                 $query['filter'] = $timerange;
@@ -270,9 +272,10 @@ class query  {
     /**
      * Construct the Azure Search query to get files
      *
-     * @param array $filters
-     * @param array|int $usercontexts
-     * @return \search_azure\query
+     * @param \core_search\document $document A search document.
+     * @param int $start The result stating position.
+     * @param int $rows The number of rows to return.
+     * @return array $query The search query.
      */
     public function get_files_query($document, $start, $rows) {
         $filterstring = "(type eq 2)"
@@ -291,9 +294,10 @@ class query  {
     /**
      * Construct the Azure Search query to get files
      *
-     * @param int $areaid
-     * @param array|int $usercontexts
-     * @return \search_azure\query
+     * @param int $areaid The search area id.
+     * @param int $start The result stating position.
+     * @param int $rows The number of rows to return.
+     * @return array $query The search query.
      */
     public function get_areaid_query($areaid, $start, $rows) {
         $filterstring = "areaid eq '". $areaid ."'";
