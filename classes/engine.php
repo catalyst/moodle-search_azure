@@ -254,7 +254,7 @@ class engine extends \core_search\engine {
         $query = new \search_azure\query();
         $queryobj = $query->get_files_query($document, $start, $rows);
 
-        $jsonquery = json_encode($query);
+        $jsonquery = json_encode($queryobj);
         $response = $client->post($url, $jsonquery)->getBody();
         $results = json_decode($response);
 
@@ -278,30 +278,29 @@ class engine extends \core_search\engine {
      * @return array   A two element array, the first is the total number of available results, the second is an array
      *                 of documents for the current request.
      */
-    private function get_records_areaid($areaid, $start = 0, $rows = 500, $stack=false) {
-        $results = array();
+    private function get_records_areaid($areaid, $start=0, $rows=500, $returnresults=array(), $stack=false) {
+        $count = 0;
 
         $url = $this->get_url('/docs/search');
         $client = new \search_azure\asrequest($stack);
         $query = new \search_azure\query();
         $queryobj = $query->get_areaid_query($areaid, $start, $rows);
 
-        $jsonquery = json_encode($query);
+        $jsonquery = json_encode($queryobj);
         $response = $client->post($url, $jsonquery)->getBody();
         $results = json_decode($response);
 
         if (isset($results->value)) {
             $count = $results->{'@odata.count'}; // Insanity to access propert staring with @.
-            $this->areaiddocs = array_merge($this->areaiddocs, $results->value);
+            $returnresults = array_merge($returnresults, $results->value);
+            $start += $rows;
         }
 
         if ($start < $count) {
-            $start += $rows;
-            $this->get_records_areaid($areaid, $start = 0);
+            $returnresults = $this->get_records_areaid($areaid, $start, $rows, $returnresults, $stack);
         }
 
-        $this->areaiddocs = array(); //reset to empty array.
-        return $results;
+        return $returnresults;
     }
 
     /**
@@ -696,11 +695,12 @@ class engine extends \core_search\engine {
         $url = $this->get_url('/docs/index');
         $client = new \search_azure\asrequest($stack);
 
-        $record = array('value' => array(
-            '@search.action' => 'delete',
-            'id' => $id
-        ));
-        $jsondoc = json_encode($record);
+        $record = new \stdClass();
+        $record->{'@search.action'} = 'delete';
+        $record->id = $id;
+
+        $request = array('value' => array($record));
+        $jsondoc = json_encode($request);
 
         $response = $client->post($url, $jsondoc);
         $responsecode = $response->getStatusCode();
@@ -721,7 +721,7 @@ class engine extends \core_search\engine {
      */
     public function delete($areaid=false, $stack=false) {
         $url = $this->get_url();
-        $client = new \search_azure\asrequest();
+        $client = new \search_azure\asrequest($stack);
         $returnval = false;
 
         if ($areaid === false) {
@@ -729,20 +729,18 @@ class engine extends \core_search\engine {
             // Response will return acknowledged True if deletion worked,
             // or a status of not found if index doesn't exist.
             // We'll treat both cases as good.
-            $response = json_decode($client->delete($url)->getBody());
-            if (isset($response->acknowledged) && ($response->acknowledged == true)) {
-                $this->create_index(); // Recreate the new index.
-                $returnval = true;
-            } else if (isset($response->status) && ($response->status == 404)) {
-                $this->create_index();
+            $response = $client->delete($url);
+            $responsecode = $response->getStatusCode();
+
+            if ($responsecode == 204 || $responsecode == 404) {
+                $this->create_index($stack);
                 $returnval = true;
             }
         } else {
             $results = $this->get_records_areaid($areaid);
             foreach ($results as $result) {
-                $this->delete_by_id($result->id);
+                $returnval = $this->delete_by_id($result->id, $stack);
             }
-            $returnval = true;
         }
         return $returnval;
     }

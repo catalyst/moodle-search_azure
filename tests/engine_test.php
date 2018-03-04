@@ -449,7 +449,160 @@ class search_azure_engine_testcase extends advanced_testcase {
     }
 
     /**
-     * Test check if document payload is ready to send.
+     * Test the add document method makes correctly formed request.
+     */
+    public function test_get_records_areaid() {
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        $areaid= 'mod_resource-activity';
+        $body1 = '{
+            "@odata.count": 3,
+            "value": [{
+                "@search.score": 1.7477992,
+                "id": "core_course-mycourse-5",
+                "parentid": "core_course-mycourse-5",
+                "itemid": 6,
+                "title": "search test",
+                "content": "search course summary description description",
+                "contextid": "210",
+                "areaid": "core_course-mycourse",
+                "type": 1,
+                "courseid": "6",
+                "owneruserid": 0,
+                "modified": 1499398979,
+                "userid": null,
+                "groupid": null,
+                "description1": "search test",
+                "description2": null,
+                "filecontenthash": null
+            }]
+        }';
+
+        $body2 = '{
+            "@odata.count": 3,
+            "value": [{
+                "@search.score": 1.7477992,
+                "id": "core_course-mycourse-6",
+                "parentid": "core_course-mycourse-6",
+                "itemid": 6,
+                "title": "search test",
+                "content": "search course summary description description",
+                "contextid": "210",
+                "areaid": "core_course-mycourse",
+                "type": 1,
+                "courseid": "6",
+                "owneruserid": 0,
+                "modified": 1499398979,
+                "userid": null,
+                "groupid": null,
+                "description1": "search test",
+                "description2": null,
+                "filecontenthash": null
+            }]
+        }';
+
+        $body3 = '{
+            "@odata.count": 3,
+            "value": [{
+                "@search.score": 1.7477992,
+                "id": "core_course-mycourse-7",
+                "parentid": "core_course-mycourse-7",
+                "itemid": 6,
+                "title": "search test",
+                "content": "search course summary description description",
+                "contextid": "210",
+                "areaid": "core_course-mycourse",
+                "type": 1,
+                "courseid": "6",
+                "owneruserid": 0,
+                "modified": 1499398979,
+                "userid": null,
+                "groupid": null,
+                "description1": "search test",
+                "description2": null,
+                "filecontenthash": null
+            }]
+        }';
+
+        // Create a mock stack and queue a response.
+        $container = [];
+        $history = Middleware::history($container);
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json'], $body1),
+            new Response(200, ['Content-Type' => 'application/json'], $body2),
+            new Response(200, ['Content-Type' => 'application/json'], $body3)
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        // Add the history middleware to the handler stack.
+        $stack->push($history);
+
+        // Reflection magic as we are directly testing a private method.
+        $method = new ReflectionMethod('\search_azure\engine', 'get_records_areaid');
+        $method->setAccessible(true); // Allow accessing of private method.
+        $proxy = $method->invoke(new \search_azure\engine, $areaid, 0, 1, array(), $stack);
+        $request = $container[0]['request'];
+        $requestcontents = $request->getBody()->getContents();
+
+        // Check the results.
+        $this->assertEquals('core_course-mycourse-5', $proxy[0]->id);
+        $this->assertEquals('core_course-mycourse-6', $proxy[1]->id);
+        $this->assertEquals('core_course-mycourse-7', $proxy[2]->id);
+    }
+
+
+    /**
+     * Test Azure Search index deletion.
+     */
+    public function test_delete() {
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $mock = new MockHandler([
+            new Response(204),
+            new Response(201)
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        $engine = new \search_azure\engine();
+        $result = $engine->delete(false, $stack);
+
+        // Check the results.
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Test Azure Search index deletion.
+     */
+    public function test_delete_no_index() {
+        set_config('searchurl', 'https://moodle.search.windows.fake', 'search_azure');
+        set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
+        set_config('apiversion', '2016-09-01', 'search_azure');
+        set_config('index', 'moodle', 'search_azure');
+
+        // Create a mock stack and queue a response.
+        $mock = new MockHandler([
+            new Response(404),
+            new Response(201)
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        $engine = new \search_azure\engine();
+        $result = $engine->delete(false, $stack);
+
+        // Check the results.
+        $this->assertTrue(true);
+    }
+
+
+    /**
+     * Test basic search using real endpoint.
      */
     public function test_basic_search() {
         if ($this->skiptest){
@@ -458,19 +611,19 @@ class search_azure_engine_testcase extends advanced_testcase {
 
         // Construct the search object and add it to the engine.
         $rec = new \stdClass();
-        $rec->content = "elastic";
+        $rec->content = "Azure";
         $area = $this->area;
         $record = $this->generator->create_record($rec);
         $doc = $area->get_document($record);
         $this->engine->add_document($doc);
 
-        // We need to wait for Elastic search to update its index
+        // We need to wait for Azure search to update its index
         // this happens in near realtime, not immediately.
         sleep(1);
 
         // This is a mock of the search form submission.
         $querydata = new stdClass();
-        $querydata->q = 'elastic';
+        $querydata->q = 'Azure';
         $querydata->timestart = 0;
         $querydata->timeend = 0;
 
