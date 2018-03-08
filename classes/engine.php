@@ -727,7 +727,7 @@ class engine extends \core_search\engine {
      *
      * @param bool $areaid | string
      * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
-     * @reutn bool $returnval The return status.
+     * @return bool $returnval The return status.
      */
     public function delete($areaid=false, $stack=false) {
         $url = $this->get_url();
