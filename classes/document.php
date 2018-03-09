@@ -215,8 +215,8 @@ class document extends \core_search\document {
     /**
      * Use tika to extract text from file.
      *
-     * @param file $file
-     * @param asrequest\client $client client
+     * @param \stored_file $file
+     * @param \search_azure\asrequest $client client
      * @return string|boolean
      */
     public function extract_text($file, $client) {

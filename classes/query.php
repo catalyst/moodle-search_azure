@@ -117,7 +117,7 @@ class query  {
      *
      * @param string $title
      * @param bool $isand If true add and condition to string.
-     * @return array
+     * @return string $filter The filter string to apply to search.
      */
     private function construct_title($title, $isand) {
         if ($isand) {
@@ -138,7 +138,7 @@ class query  {
      * @param string $key
      * @param string $match
      * @param bool $isand If true add and condition to string.
-     * @return array
+     * @return string $filter The filter string to apply to search.
      */
     private function construct_filter($filters, $key, $match, $isand) {
         if ($isand) {
@@ -159,7 +159,7 @@ class query  {
      *
      * @param array $filters The filters to apply
      * @param bool $isand If true add and condition to string.
-     * @return array
+     * @return string $filter The filter string to apply to search.
      */
     private function construct_time_range($filters, $isand) {
         $ge = false;

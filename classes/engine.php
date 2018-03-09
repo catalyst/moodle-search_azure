@@ -242,7 +242,7 @@ class engine extends \core_search\engine {
     /**
      * Get the currently indexed files for a particular document, returns the total count, and a subset of files.
      *
-     * @param document $document
+     * @param \core_search\document $document
      * @param int      $start The row to start the results on. Zero indexed.
      * @param int      $rows The number of rows to fetch
      * @param \GuzzleHttp\Handler\ $stack The stack to use for the HTTP query.
@@ -443,9 +443,9 @@ class engine extends \core_search\engine {
      * and and have the search engine back end add them
      * to the index.
      *
-     * @param iterator $iterator the iterator of documents to index
+     * @param iterator/searcharea/aray invalid param types
      * @param searcharea $searcharea the area for the documents to index
-     * @param aray $options document indexing options
+     * @param array $options document indexing options
      * @return array Processed document counts
      */
     public function add_documents($iterator, $searcharea, $options) {
@@ -497,7 +497,7 @@ class engine extends \core_search\engine {
      * If no errors were returned from bulk operation then numdocs = numrecords.
      * If there are errors no documents would have been added.
      *
-     * @param unknown $response
+     * @param \GuzzleHttp\response $response
      */
     private function process_response($response) {
         $responsebody = json_decode($response->getBody());
@@ -623,7 +623,7 @@ class engine extends \core_search\engine {
      *
      * @param array $results The raw search results.
      * @param int $limit The limit for the results to return.
-     * @return \core_search\document $docs The filtered documents.
+     * @return array $docs The filtered documents.
      */
     private function query_results($results, $limit) {
         $docs = array();
@@ -667,7 +667,7 @@ class engine extends \core_search\engine {
      * @param array $filters
      * @param array $usercontexts
      * @param int $limit
-     * @return array $docs
+     * @return core_search\document $docs Result documents.
      */
     public function execute_query($filters, $usercontexts, $limit = 0) {
         $url = $this->get_url('/docs/search');
