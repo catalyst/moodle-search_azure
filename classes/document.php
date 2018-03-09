@@ -197,6 +197,22 @@ class document extends \core_search\document {
     );
 
     /**
+     * @var array Plugin configuration.
+     */
+    protected $config = array();
+
+    /**
+
+     * @var integer Port Tika is listening.
+     */
+    protected $tikaport = 0;
+
+    /**
+     * @var string FQDN of Tika instance.
+     */
+    protected $tikahostname = '';
+
+    /**
      * Constructor for document class.
      * Makes relevant config available.
      *
