@@ -329,6 +329,7 @@ class search_azure_engine_testcase extends advanced_testcase {
      * Test the add document method makes correctly formed request.
      */
     public function test_add_document() {
+        global $CFG;
         set_config('searchurl', 'https://moodle.search.windows.test', 'search_azure');
         set_config('apikey', 'DEADBEEF01234567890', 'search_azure');
         set_config('apiversion', '2016-09-01', 'search_azure');
@@ -359,7 +360,26 @@ class search_azure_engine_testcase extends advanced_testcase {
         $request = $container[0]['request'];
         $requestcontents = $request->getBody()->getContents();
 
+        if ($CFG->version > 2016120509.00) {
         $expect = '{"value": [
+                        {"areaid":"core_mocksearch-mock_search_area",
+                        "id":"core_mocksearch-mock_search_area-1",
+                        "itemid":1,
+                        "title":"A basic title",
+                        "content":"Test content to add to engine",
+                        "description1":"Description 1.",
+                        "description2":"Description 2.",
+                        "contextid":"2",
+                        "courseid":"1",
+                        "userid":"2",
+                        "owneruserid":"0",
+                        "modified":"1519536013",
+                        "type":1,
+                        "parentid":"core_mocksearch-mock_search_area-1",
+                        "@search.action":"mergeOrUpload"
+                        }]}';
+        } else {
+            $expect = '{"value": [
                         {"areaid":"core_mocksearch-mock_search_area",
                         "id":"core_mocksearch-mock_search_area-1",
                         "itemid":1,
@@ -375,6 +395,7 @@ class search_azure_engine_testcase extends advanced_testcase {
                         "parentid":"core_mocksearch-mock_search_area-1",
                         "@search.action":"mergeOrUpload"
                         }]}';
+        }
 
         // Check the results.
         $this->assertJsonStringEqualsJsonString($expect, $requestcontents);
