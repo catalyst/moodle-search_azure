@@ -55,7 +55,7 @@ Once you have setup an Azure Search service you can now configure the Moodle plu
 3. Configure the Azure Search plugin at: *Site administration > Plugins > Search > Azure*
 4. Set *URL*, *API Key* and *API version* of your Elasticsearch server
 5. Set the *Index* name you want to use for your Azure Search service.
-6. To create the index and populate Azure Searcg with your site's data, run this CLI script. `sudo -u www-data php search/cli/indexer.php --force --reindex`
+6. To create the index and populate Azure Search with your site's data, run this CLI script. `sudo -u www-data php search/cli/indexer.php --force --reindex`
 7. Enable Global search in *Site administration > Advanced features*
 
 ## File Indexing Support
