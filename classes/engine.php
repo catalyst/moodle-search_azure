@@ -443,7 +443,7 @@ class engine extends \core_search\engine {
      * and and have the search engine back end add them
      * to the index.
      *
-     * @param iterator/searcharea/aray invalid param types
+     * @param iterator/searcharea/array $iterator invalid param types
      * @param searcharea $searcharea the area for the documents to index
      * @param array $options document indexing options
      * @return array Processed document counts

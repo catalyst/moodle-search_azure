@@ -120,6 +120,32 @@ class asrequest {
     }
 
     /**
+     * Execute the HTTP action and return the response.
+     * Requests that receive a 4xx or 5xx response will throw a
+     * Guzzle\Http\Exception\BadResponseException.
+     * Requests to a URL that does not resolve will raise a \GuzzleHttp\Exception\GuzzleException.
+     * We want to handle this in a sane way and provide the caller with
+     * a useful response. So we catch the error and return the
+     * response.
+     *
+     * @param \GuzzleHttp\Psr7\Request $psr7request
+     * @param array $proxy
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    private function http_action($psr7request, $proxy) {
+        try {
+            $response = $this->client->send($psr7request, $proxy);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            // This case does not provide a response object with a consistent interface so we need to make one.
+            $response = new \search_azure\guzzle_exception();
+        }
+
+        return $response;
+    }
+
+    /**
      * Process GET requests to azuresearch.
      *
      * @param string $url
@@ -133,16 +159,7 @@ class asrequest {
         $psr7request = new \GuzzleHttp\Psr7\Request('GET', $url, $headers);
         $proxy = $this->proxyconstruct();
 
-        // Requests that receive a 4xx or 5xx response will throw a
-        // Guzzle\Http\Exception\BadResponseException. We want to
-        // handle this in a sane way and provide the caller with
-        // a useful response. So we catch the error and return the
-        // resposne.
-        try {
-            $response = $this->client->send($psr7request, $proxy);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-        }
+        $response = $this->http_action($psr7request, $proxy);
 
         return $response;
 
@@ -163,16 +180,7 @@ class asrequest {
         $psr7request = new \GuzzleHttp\Psr7\Request('PUT', $url, $headers, $params);
         $proxy = $this->proxyconstruct();
 
-        // Requests that receive a 4xx or 5xx response will throw a
-        // Guzzle\Http\Exception\BadResponseException. We want to
-        // handle this in a sane way and provide the caller with
-        // a useful response. So we catch the error and return the
-        // resposne.
-        try {
-            $response = $this->client->send($psr7request, $proxy);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-        }
+        $response = $this->http_action($psr7request, $proxy);
 
         return $response;
 
@@ -192,16 +200,7 @@ class asrequest {
         $psr7request = new \GuzzleHttp\Psr7\Request('POST', $url, $headers, $params);
         $proxy = $this->proxyconstruct();
 
-        // Requests that receive a 4xx or 5xx response will throw a
-        // Guzzle\Http\Exception\BadResponseException. We want to
-        // handle this in a sane way and provide the caller with
-        // a useful response. So we catch the error and return the
-        // resposne.
-        try {
-            $response = $this->client->send($psr7request, $proxy);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-        }
+        $response = $this->http_action($psr7request, $proxy);
 
         return $response;
 
@@ -227,16 +226,7 @@ class asrequest {
         $psr7request = new \GuzzleHttp\Psr7\Request('POST', $url, $headers, $multipart);
         $proxy = $this->proxyconstruct();
 
-        // Requests that receive a 4xx or 5xx response will throw a
-        // Guzzle\Http\Exception\BadResponseException. We want to
-        // handle this in a sane way and provide the caller with
-        // a useful response. So we catch the error and return the
-        // resposne.
-        try {
-            $response = $this->client->send($psr7request, $proxy);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-        }
+        $response = $this->http_action($psr7request, $proxy);
 
         return $response;
 
@@ -256,16 +246,7 @@ class asrequest {
         $psr7request = new \GuzzleHttp\Psr7\Request('DELETE', $url, $headers);
         $proxy = $this->proxyconstruct();
 
-        // Requests that receive a 4xx or 5xx response will throw a
-        // Guzzle\Http\Exception\BadResponseException. We want to
-        // handle this in a sane way and provide the caller with
-        // a useful response. So we catch the error and return the
-        // resposne.
-        try {
-            $response = $this->client->send($psr7request, $proxy);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-        }
+        $response = $this->http_action($psr7request, $proxy);
 
         return $response;
 
