@@ -361,7 +361,7 @@ class search_azure_engine_testcase extends advanced_testcase {
         $requestcontents = $request->getBody()->getContents();
 
         if ($CFG->version > 2016120509.00) {
-        $expect = '{"value": [
+            $expect = '{"value": [
                         {"areaid":"core_mocksearch-mock_search_area",
                         "id":"core_mocksearch-mock_search_area-1",
                         "itemid":1,
