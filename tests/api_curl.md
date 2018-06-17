@@ -152,6 +152,34 @@ curl -X POST \
 "https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
 </code></pre>
 
+## Query - orderby
+The following shows how to construct a Azure Search Query that sorts results by date modified.
+
+Replace the `{index}` variable in the example (including removing the braces) with the actual name you want to use for the index.</br>
+Replace the `{key}` variable in the example (including removing the braces) with the actual API key for the service.
+
+The below query selects:
+* Any records (*)
+* That are in courses with a course id of 1, 2, 3 or 4
+* That are assignment or forum activity types
+* That have the word 'Forum' in the activity title
+* Returns results with the newest modified records first.
+
+<pre><code>
+curl -X POST \
+-H "Content-Type: application/json" \
+-H "api-key: {key}" \
+-d ' {
+     "search": "*",
+     "searchFields": "id, title, content, description1, description2, filetext",
+     "top": 100,
+     "filter": "search.in(courseid, '\''1,2,3,4'\'') and search.in(areaid, '\''mod_assign-activity, mod_forum-activity'\'') and search.ismatch('\''Forum'\'', '\''title'\'')",
+     "orderby": "modified desc"
+   }
+' \
+"https://moodle.search.windows.net/indexes/{index}/docs/search?api-version=2016-09-01"
+</code></pre>
+
 ## Query - Date Range
 The following shows how to construct a filtered Azure Search Query that limits results based on a time range.
 

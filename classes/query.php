@@ -254,6 +254,24 @@ class query  {
             }
             $isand = true;
         }
+        if (isset($filters->userids) && $filters->userids != null && !empty($filters->userids)) {
+            $userids = $this->construct_filter($filters, 'userids', 'userid', $isand);
+            if (isset($query['filter'])) {
+                $query['filter'] = $query['filter'] . $userids;
+            } else {
+                $query['filter'] = $userids;
+            }
+            $isand = true;
+        }
+        if (isset($filters->groupids) && $filters->groupids != null && !empty($filters->groupids)) {
+            $groupids = $this->construct_filter($filters, 'groupids', 'groupid', $isand);
+            if (isset($query['filter'])) {
+                $query['filter'] = $query['filter'] . $groupids;
+            } else {
+                $query['filter'] = $groupids;
+            }
+            $isand = true;
+        }
         if ($filters->timestart != 0  || $filters->timeend != 0) {
             $timerange = $this->construct_time_range($filters, $isand);
             if (isset($query['filter'])) {
@@ -265,6 +283,11 @@ class query  {
 
         // Add highlighting.
         $query = $this->set_highlighting($query);
+
+        // Add date based sorting.
+        if (!empty($filters->order) && ($filters->order === 'asc' || $filters->order === 'desc')) {
+            $query['orderby'] = 'modified ' . $filters->order;
+        }
 
         return $query;
     }

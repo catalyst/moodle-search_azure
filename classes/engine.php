@@ -801,4 +801,47 @@ class engine extends \core_search\engine {
 
         $client->post($url, '');
     }
+
+    /**
+     * Azure includes group support in the execute_query function.
+     *
+     * @return bool True
+     */
+    public function supports_group_filtering() {
+        return true;
+    }
+
+    /**
+     * Requests the search engine to upgrade the schema. Just return true for Azure search.
+     *
+     * @param int $oldversion Old schema version
+     * @param int $newversion New schema version
+     * @return bool|string True if schema is updated successfully, a string if it needs updating manually
+     */
+    protected function update_schema($oldversion, $newversion) {
+        return true;
+    }
+
+    /**
+     * Azure supports sort by date order and relevance.
+     *
+     * @param \context $context Context that the user requested search from
+     * @return array Array from order name => display text
+     */
+    public function get_supported_orders(\context $context) {
+        $orders = parent::get_supported_orders($context);
+        $orders['desc'] = get_string('order_newest', 'search_azure');
+        $orders['asc'] = get_string('order_oldest', 'search_azure');
+
+        return $orders;
+    }
+
+    /**
+     * Azure supports search by user id.
+     *
+     * @return bool True
+     */
+    public function supports_users() {
+        return true;
+    }
 }

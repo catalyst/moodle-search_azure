@@ -228,6 +228,74 @@ class search_azure_query_testcase extends advanced_testcase {
     }
 
     /**
+     * Test userid query construction.
+     */
+    public function test_get_query_userid() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->userids = array(1, 2, 3, 4);
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1, 2, 3);
+
+        $expected = array(
+            "search" => "*",
+            "searchFields" => "id, title, content, description1, description2, filetext",
+            "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+            ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+            ." and (search.in(userid, '1,2,3,4'))",
+            "highlightPreTag" => "@@HI_S@@",
+            "highlightPostTag" => "@@HI_E@@",
+            "highlight" => "title-10,content-10,description1-10,description2-10",
+            "top" => 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test groupid query construction.
+     */
+    public function test_get_query_groupid() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->groupids = array(1, 2, 3, 4);
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1, 2, 3);
+
+        $expected = array(
+            "search" => "*",
+            "searchFields" => "id, title, content, description1, description2, filetext",
+            "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+            ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+            ." and (search.in(groupid, '1,2,3,4'))",
+            "highlightPreTag" => "@@HI_S@@",
+            "highlightPostTag" => "@@HI_E@@",
+            "highlight" => "title-10,content-10,description1-10,description2-10",
+            "top" => 100
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
      * Test times query construction.
      */
     public function test_get_query_times() {
@@ -313,6 +381,78 @@ class search_azure_query_testcase extends advanced_testcase {
 
         $query = new \search_azure\query();
         $result = $query->get_areaid_query($areaid, $start, $rows);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test modified date asc query construction.
+     */
+    public function test_get_query_modified_asc() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->groupids = array(1, 2, 3, 4);
+        $filters->order = 'asc';
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1, 2, 3);
+
+        $expected = array(
+            "search" => "*",
+            "searchFields" => "id, title, content, description1, description2, filetext",
+            "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+            ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+            ." and (search.in(groupid, '1,2,3,4'))",
+            "highlightPreTag" => "@@HI_S@@",
+            "highlightPostTag" => "@@HI_E@@",
+            "highlight" => "title-10,content-10,description1-10,description2-10",
+            "top" => 100,
+            "orderby" => "modified asc"
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
+
+        // Check the results.
+        $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
+    }
+
+    /**
+     * Test modified date desc query construction.
+     */
+    public function test_get_query_modified_desc() {
+
+        $filters = new \stdClass();
+        $filters->q = '*';
+        $filters->title = 'forum';
+        $filters->areaids = array('mod_assign-activity', 'mod_forum-activity');
+        $filters->groupids = array(1, 2, 3, 4);
+        $filters->order = 'desc';
+        $filters->timestart = 0;
+        $filters->timeend = 0;
+
+        $contexts = array(1, 2, 3);
+
+        $expected = array(
+            "search" => "*",
+            "searchFields" => "id, title, content, description1, description2, filetext",
+            "filter" => "(search.in(contextid, '1,2,3')) and (search.ismatch('forum', 'title'))"
+            ." and (search.in(areaid, 'mod_assign-activity,mod_forum-activity'))"
+            ." and (search.in(groupid, '1,2,3,4'))",
+            "highlightPreTag" => "@@HI_S@@",
+            "highlightPostTag" => "@@HI_E@@",
+            "highlight" => "title-10,content-10,description1-10,description2-10",
+            "top" => 100,
+            "orderby" => "modified desc"
+        );
+
+        $query = new \search_azure\query();
+        $result = $query->get_query($filters, $contexts);
 
         // Check the results.
         $this->assertJsonStringEqualsJsonString(json_encode($expected), json_encode($result));
