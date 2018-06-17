@@ -49,6 +49,8 @@ $string['noserver'] = 'Azure Search endpoint unreachable';
 $string['order_newest'] = 'Newest first';
 $string['order_oldest'] = 'Oldest first';
 $string['pluginsettings'] = 'Plugin settings';
+$string['privacy:metadata'] = 'This plugin sends data externally to a linked Azure search engine. It does not store data locally.';
+$string['privacy:metadata:data'] = 'Personal data passed through from the search subsystem.';
 $string['searchinfo'] = 'Search queries';
 $string['searchinfo_help'] = 'The field to be searched may be specified by prefixing the search query with \'title:\', \'content:\', \'name:\', or \'intro:\'. For example, searching for \'title:news\' would return results with the word \'news\' in the title.
 
