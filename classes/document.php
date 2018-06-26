@@ -232,8 +232,7 @@ class document extends \core_search\document {
         $this->config = get_config('search_azure');
         $this->tikaport = $this->config->tikaport;
         $this->tikahostname = rtrim($this->config->tikahostname, "/");
-    }       
-
+    }
 
     /**
      * Use tika to extract text from file.
