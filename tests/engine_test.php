@@ -377,7 +377,7 @@ class search_azure_engine_testcase extends advanced_testcase {
                         "type":1,
                         "parentid":"core_mocksearch-mock_search_area-1",
                         "@search.action":"mergeOrUpload",
-                        "docurl":"http://www.example.com/moodle/index.php"
+                        "docurl":"https://www.example.com/moodle/index.php"
                         }]}';
         } else {
             $expect = '{"value": [
