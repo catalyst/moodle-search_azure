@@ -178,6 +178,13 @@ class document extends \core_search\document {
             'retrievable' => true,
             'searchable' => false,
             'filterable' => true
+        ),
+        'docurl' => array(
+            'name' => 'docurl',
+            'type' => 'Edm.String',
+            'retrievable' => true,
+            'searchable' => false,
+            'filterable' => false
         )
     );
 
@@ -215,7 +222,6 @@ class document extends \core_search\document {
     /**
      * Constructor for document class.
      * Makes relevant config available.
-     *
      * @param int $itemid An id unique to the search area
      * @param string $componentname The search area component Frankenstyle name
      * @param string $areaname The area name (the search area class name)
@@ -338,8 +344,10 @@ class document extends \core_search\document {
      */
     public function export_for_engine() {
         $data = parent::export_for_engine();
-
         $data['@search.action'] = 'mergeOrUpload';
+        $searcharea = \core_search\manager::get_search_area($this->data['areaid']);
+        $docurl = $searcharea->get_doc_url($this);
+        $data['docurl'] = $docurl->__toString();
 
         return $data;
     }

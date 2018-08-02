@@ -231,8 +231,8 @@ class search_azure_engine_testcase extends advanced_testcase {
                 {"name": "description1", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "description2", "type": "Edm.String", "retrievable":true, "searchable": true, "filterable": false},
                 {"name": "filetext", "type": "Edm.String", "retrievable":false, "searchable": true, "filterable": false},
-                {"name": "filecontenthash", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true}
-
+                {"name": "filecontenthash", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": true},
+                {"name": "docurl", "type": "Edm.String", "retrievable":true, "searchable": false, "filterable": false}
             ]
         }';
 
@@ -376,7 +376,8 @@ class search_azure_engine_testcase extends advanced_testcase {
                         "modified":"1519536013",
                         "type":1,
                         "parentid":"core_mocksearch-mock_search_area-1",
-                        "@search.action":"mergeOrUpload"
+                        "@search.action":"mergeOrUpload",
+                        "docurl":"https://www.example.com/moodle/index.php"
                         }]}';
         } else {
             $expect = '{"value": [
@@ -393,7 +394,8 @@ class search_azure_engine_testcase extends advanced_testcase {
                         "modified":"1519536013",
                         "type":1,
                         "parentid":"core_mocksearch-mock_search_area-1",
-                        "@search.action":"mergeOrUpload"
+                        "@search.action":"mergeOrUpload",
+                        "docurl":"http://www.example.com/moodle/index.php"
                         }]}';
         }
 
